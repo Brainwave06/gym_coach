@@ -1,0 +1,72 @@
+EXERCISE_CONFIG = {
+    "display_name": "Lunge",
+    "mode": "reps",
+    "view": "side",
+    "initial_stage": "up",
+    "side_check": "knee",
+    "set_size": 8,
+    "rest_seconds": 20,
+    "calibrate_seconds": 2.5,
+    "setup_hint": "Turn sideways - you will step into a lunge",
+    "calibrate_hint": "Stand tall, then step and drop the back knee",
+    "not_visible_message": "Step sideways to the camera so both legs are visible",
+    "landmarks": {
+        "left": {"shoulder": 11, "hip": 23, "knee": 25, "ankle": 27, "foot_index": 31},
+        "right": {"shoulder": 12, "hip": 24, "knee": 26, "ankle": 28, "foot_index": 32},
+    },
+    "checks": {
+        "knee": {
+            "type": "min_angle",
+            "points": ("hip", "knee", "ankle"),
+            "down_threshold": 105,
+            "up_threshold": 155,
+        },
+        "torso_lean": {
+            "type": "vertical_angle",
+            "points": ("shoulder", "hip"),
+            "down_threshold": 32,
+            "up_threshold": None,
+            "direction": "above",
+        },
+        "knees_past_toes": {
+            "type": "forward_offset",
+            "points": ("hip", "knee", "foot_index"),
+            "down_threshold": 0.22,
+            "up_threshold": None,
+            "direction": "above",
+        },
+        "knee_asymmetry": {
+            "type": "angle_asymmetry",
+            "points": ("hip", "knee", "ankle"),
+            "down_threshold": 25,
+            "up_threshold": None,
+            "direction": "below",
+        },
+    },
+    "primary_check": "knee",
+    "depth_checks": ["knee"],
+    "fault_checks": ["torso_lean", "knees_past_toes"],
+    "feedback_rules": [
+        {
+            "require": {"knee": True, "torso_lean": False, "knees_past_toes": False},
+            "message": "Rep {count}: Solid lunge ({side})!",
+            "counts_as_good": True,
+        },
+        {
+            "require": {"torso_lean": True},
+            "message": "Rep {count}: Torso tipping - keep your chest tall",
+            "counts_as_good": False,
+        },
+        {
+            "require": {"knees_past_toes": True},
+            "message": "Rep {count}: Front knee racing past toes - take a longer step",
+            "counts_as_good": False,
+        },
+        {
+            "require": {"knee": False},
+            "message": "Rep {count}: Not deep enough - drop the back knee",
+            "counts_as_good": False,
+        },
+    ],
+    "default_message": "Rep {count}: Not deep enough - drop the back knee",
+}

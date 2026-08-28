@@ -1,0 +1,92 @@
+{
+  "updated_at": "2026-08-28T23:13:31",
+  "source": "desktop_cv_coach",
+  "athlete": {
+    "name": "Ahmed Atef",
+    "goal": "strength",
+    "experience": "beginner",
+    "injuries": [
+      "back"
+    ],
+    "equipment": "floor",
+    "time_budget_min": 25,
+    "voice_mode": "full"
+  },
+  "progression": {
+    "box_squat": {
+      "variant": "box_squat",
+      "sets": 1,
+      "reps": 6,
+      "hold": 25,
+      "last_feel": "easy",
+      "last_quality": 0.4,
+      "last_ended": "form_fade"
+    },
+    "wall_sit": {
+      "variant": "wall_sit",
+      "sets": 2,
+      "reps": 8,
+      "hold": 30,
+      "last_feel": "hard",
+      "last_quality": 0.682,
+      "last_ended": "target"
+    },
+    "bird_dog": {
+      "variant": "bird_dog",
+      "sets": 2,
+      "reps": 9,
+      "hold": 35,
+      "last_feel": "easy",
+      "last_quality": 0.89,
+      "last_ended": "target"
+    }
+  },
+  "camera_setup": null,
+  "weekly": {
+    "days": 7,
+    "sessions": 8,
+    "workouts": 8,
+    "reps": 70,
+    "good_reps": 22,
+    "quality": 0.3142857142857143,
+    "hold_time": 0.0,
+    "streak": 1,
+    "top_cues": [
+      {
+        "cue": "Front knee racing past toes - take a longer step",
+        "count": 18
+      },
+      {
+        "cue": "Heels lifting - keep them flat",
+        "count": 8
+      },
+      {
+        "cue": "Chest collapsing - keep your torso more upright",
+        "count": 7
+      },
+      {
+        "cue": "Hips twisting - push evenly through both heels",
+        "count": 7
+      },
+      {
+        "cue": "Good depth!",
+        "count": 6
+      }
+    ],
+    "skipped_note": "",
+    "imbalance": {
+      "weak_side": null,
+      "note": "Not enough left/right reps yet."
+    }
+  },
+  "imbalance": {
+    "weak_side": null,
+    "note": "Not enough left/right reps yet."
+  },
+  "notes_for_chatbot": "Computer vision owns form, reps, and live cues. Use this snapshot to suggest diet or a complementary plan. Do not override a pain flag or a form_fade stop.",
+  "last_session": {
+    "kind": "workout",
+    "plan": "Week 3 Day 2",
+    "aborted": false
+  }
+}

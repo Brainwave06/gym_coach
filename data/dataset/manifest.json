@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-28T23:13:31",
+  "users": 5,
+  "sessions": 22,
+  "form_cues": 43,
+  "files": {
+    "users": "users.jsonl",
+    "sessions": "sessions.jsonl",
+    "form_cues": "form_cues.jsonl"
+  },
+  "fields": {
+    "users": [
+      "user_id",
+      "display_name",
+      "synthetic",
+      "profile",
+      "stats",
+      "imbalance",
+      "progression"
+    ],
+    "sessions": [
+      "session_id",
+      "user_id",
+      "kind",
+      "saved_at",
+      "blocks"
+    ],
+    "form_cues": [
+      "user_id",
+      "session_id",
+      "exercise_id",
+      "cue",
+      "count",
+      "saved_at"
+    ]
+  },
+  "notes": "synthetic=true rows are demo athletes for backend/chatbot tests. Join users.user_id to sessions.user_id. Chatbot should not treat pain or form_fade as a cue to push harder."
+}

@@ -1,0 +1,65 @@
+EXERCISE_CONFIG = {
+    "display_name": "Biceps Curl",
+    "mode": "reps",
+    "view": "side",
+    "initial_stage": "up",
+    "side_check": "elbow",
+    "set_size": 10,
+    "rest_seconds": 20,
+    "calibrate_seconds": 2.5,
+    "setup_hint": "Stand sideways, dumbbell in the camera-side hand",
+    "calibrate_hint": "Arm hanging straight at your side",
+    "not_visible_message": "Stand sideways so the working arm is visible",
+    "landmarks": {
+        "left": {"shoulder": 11, "elbow": 13, "wrist": 15, "hip": 23},
+        "right": {"shoulder": 12, "elbow": 14, "wrist": 16, "hip": 24},
+    },
+    "checks": {
+        "elbow": {
+            "type": "min_angle",
+            "points": ("shoulder", "elbow", "wrist"),
+            "down_threshold": 55,
+            "up_threshold": 150,
+        },
+        "torso_lean": {
+            "type": "vertical_angle",
+            "points": ("shoulder", "hip"),
+            "down_threshold": 22,
+            "up_threshold": None,
+            "direction": "above",
+        },
+        "shoulder_swing": {
+            "type": "angle",
+            "points": ("hip", "shoulder", "elbow"),
+            "down_threshold": 55,
+            "up_threshold": None,
+            "direction": "above",
+        },
+    },
+    "primary_check": "elbow",
+    "depth_checks": ["elbow"],
+    "fault_checks": ["torso_lean", "shoulder_swing"],
+    "feedback_rules": [
+        {
+            "require": {"elbow": True, "torso_lean": False, "shoulder_swing": False},
+            "message": "Rep {count}: Clean curl ({side})!",
+            "counts_as_good": True,
+        },
+        {
+            "require": {"shoulder_swing": True},
+            "message": "Rep {count}: Swinging the weight - pin your elbow to your side",
+            "counts_as_good": False,
+        },
+        {
+            "require": {"torso_lean": True},
+            "message": "Rep {count}: Leaning back - don't cheat the curl",
+            "counts_as_good": False,
+        },
+        {
+            "require": {"elbow": False},
+            "message": "Rep {count}: Curl higher - bring the weight to your shoulder",
+            "counts_as_good": False,
+        },
+    ],
+    "default_message": "Rep {count}: Curl higher - bring the weight to your shoulder",
+}

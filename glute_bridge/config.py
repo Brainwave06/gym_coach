@@ -1,0 +1,73 @@
+EXERCISE_CONFIG = {
+    "display_name": "Glute Bridge",
+    "mode": "reps",
+    "view": "side",
+    "initial_stage": "down",
+    "count_on": "reach_up",
+    "side_check": "hip",
+    "set_size": 10,
+    "rest_seconds": 20,
+    "calibrate_seconds": 2.5,
+    "setup_hint": "Lie on your back, sideways to the camera",
+    "calibrate_hint": "Hips down, knees bent - then you will squeeze up",
+    "not_visible_message": "Lie on your side-on to the camera so hips and knees are visible",
+    "landmarks": {
+        "left": {"shoulder": 11, "hip": 23, "knee": 25, "ankle": 27},
+        "right": {"shoulder": 12, "hip": 24, "knee": 26, "ankle": 28},
+    },
+    "checks": {
+        "hip": {
+            "type": "angle",
+            "points": ("shoulder", "hip", "knee"),
+            "down_threshold": 115,
+            "up_threshold": 155,
+        },
+        "lockout": {
+            "type": "angle",
+            "points": ("shoulder", "hip", "knee"),
+            "down_threshold": 155,
+            "up_threshold": None,
+            "direction": "above",
+        },
+        "knee": {
+            "type": "angle",
+            "points": ("hip", "knee", "ankle"),
+            "down_threshold": 70,
+            "up_threshold": None,
+            "direction": "below",
+        },
+        "hip_asymmetry": {
+            "type": "angle_asymmetry",
+            "points": ("shoulder", "hip", "knee"),
+            "down_threshold": 18,
+            "up_threshold": None,
+            "direction": "above",
+        },
+    },
+    "primary_check": "hip",
+    "depth_checks": ["lockout"],
+    "fault_checks": ["knee", "hip_asymmetry"],
+    "feedback_rules": [
+        {
+            "require": {"lockout": True, "knee": False, "hip_asymmetry": False},
+            "message": "Rep {count}: Strong lockout!",
+            "counts_as_good": True,
+        },
+        {
+            "require": {"hip_asymmetry": True},
+            "message": "Rep {count}: Hips twisting - push evenly through both heels",
+            "counts_as_good": False,
+        },
+        {
+            "require": {"knee": True},
+            "message": "Rep {count}: Knees caving / sliding - keep them stacked over ankles",
+            "counts_as_good": False,
+        },
+        {
+            "require": {"lockout": False},
+            "message": "Rep {count}: Squeeze glutes harder - lift hips higher",
+            "counts_as_good": False,
+        },
+    ],
+    "default_message": "Rep {count}: Squeeze glutes harder - lift hips higher",
+}
