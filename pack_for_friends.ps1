@@ -22,7 +22,8 @@ $IncludeDirs = @(
     "wall_sit",
     "bird_dog",
     "dead_bug",
-    "biceps_curl"
+    "biceps_curl",
+    "ml"
 )
 $IncludeFiles = @(
     "main.py",
@@ -43,6 +44,11 @@ foreach ($file in $IncludeFiles) {
 
 New-Item -ItemType Directory -Force -Path (Join-Path $Stage "models") | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $Stage "data") | Out-Null
+
+$formSrc = Join-Path $Root "models\form"
+if (Test-Path $formSrc) {
+    Copy-Item $formSrc (Join-Path $Stage "models\form") -Recurse -Force
+}
 
 Get-ChildItem $Stage -Recurse -Directory -Filter "__pycache__" | Remove-Item -Recurse -Force
 

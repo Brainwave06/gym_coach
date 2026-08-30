@@ -14,3 +14,4 @@ Desktop computer-vision coach: webcam + MediaPipe pose, live form cues, a 4-week
 | [docs/dataset.md](docs/dataset.md) | User dataset schema |
 | [docs/for-teammates.md](docs/for-teammates.md) | Flutter, backend, chatbot |
 | [docs/architecture.md](docs/architecture.md) | Code map |
+| [docs/ml-report.md](docs/ml-report.md) | Form ML trained on `synthetic_gym_dataset/` |

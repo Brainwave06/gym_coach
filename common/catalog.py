@@ -15,7 +15,7 @@ def _knee_pushup():
     cfg = copy.deepcopy(PUSHUP_CONFIG)
     cfg["display_name"] = "Knee Push-up"
     cfg["id"] = "knee_pushup"
-    cfg["setup_hint"] = "Knees down, sideways - body in one line from head to knees"
+    cfg["setup_hint"] = "Knees down - body in one line from head to knees"
     cfg["calibrate_hint"] = "High plank on knees, arms straight"
     cfg["fault_checks"] = [name for name in cfg["fault_checks"] if name != "knee"]
     for rule in cfg["feedback_rules"]:
@@ -31,7 +31,7 @@ def _box_squat():
     cfg = copy.deepcopy(SQUAT_CONFIG)
     cfg["display_name"] = "Box Squat"
     cfg["id"] = "box_squat"
-    cfg["setup_hint"] = "Face camera. Sit back as if to a chair — stop above parallel is OK."
+    cfg["setup_hint"] = "Sit back as if to a chair — stop above parallel is OK."
     cfg["calibrate_hint"] = "Stand tall. Imagine sitting to a box behind you."
     cfg["checks"]["knee"]["down_threshold"] = 115
     cfg["checks"]["hip"]["down_threshold"] = 125
@@ -58,8 +58,8 @@ for key, cfg in BASE.items():
 TEACH = {
     "squat": "Feet under shoulders. Sit the hips back. Chest tall. Heels stay down.",
     "box_squat": "Sit back toward an imaginary box. Stop when thighs are above parallel, then stand.",
-    "plank": "Turn sideways. Straight line head to heels. Squeeze glutes. Don't let hips sag.",
-    "pushup": "Sideways. Hands under shoulders. Lower the chest, body rigid, press up.",
+    "plank": "Straight line head to heels. Squeeze glutes. Don't let hips sag.",
+    "pushup": "Hands under shoulders. Lower the chest, body rigid, press up.",
     "knee_pushup": "Knees on the floor. Same rigid body as a push-up. Lower chest, press up.",
     "lunge": "Step forward. Drop the back knee. Front knee tracks over the mid-foot. Stand up.",
     "glute_bridge": "Lie on your back. Drive through heels. Squeeze glutes at the top, then lower.",
@@ -70,15 +70,15 @@ TEACH = {
 }
 
 MENU = [
-    ("1", "squat", "Squat         FRONT"),
-    ("2", "plank", "Plank         SIDE"),
-    ("3", "pushup", "Push-up       SIDE"),
-    ("4", "lunge", "Lunge         SIDE"),
-    ("5", "glute_bridge", "Glute bridge  SIDE"),
-    ("6", "wall_sit", "Wall sit      SIDE"),
-    ("7", "bird_dog", "Bird dog      SIDE"),
-    ("8", "dead_bug", "Dead bug      SIDE"),
-    ("9", "biceps_curl", "Biceps curl   SIDE"),
+    ("1", "squat", "Squat         ANY"),
+    ("2", "plank", "Plank         ANY"),
+    ("3", "pushup", "Push-up       ANY"),
+    ("4", "lunge", "Lunge         ANY"),
+    ("5", "glute_bridge", "Glute bridge  ANY"),
+    ("6", "wall_sit", "Wall sit      ANY"),
+    ("7", "bird_dog", "Bird dog      ANY"),
+    ("8", "dead_bug", "Dead bug      ANY"),
+    ("9", "biceps_curl", "Biceps curl   ANY"),
 ]
 
 

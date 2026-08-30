@@ -237,24 +237,17 @@ def compute_angle_asymmetry(check_def, left_points, right_points):
     return abs(left_angle - right_angle)
 
 
-def compute_horizontal_ratio(check_def, landmarks, exercise_config, w, h):
-    left_map = exercise_config["landmarks"]["left"]
-    right_map = exercise_config["landmarks"]["right"]
-
+def compute_horizontal_ratio(check_def, left_points, right_points):
     num_joint = check_def["numerator_joint"]
     den_joint = check_def["denominator_joint"]
 
-    left_num, vis_left_num = get_landmark_xy(landmarks, left_map[num_joint], w, h)
-    right_num, vis_right_num = get_landmark_xy(landmarks, right_map[num_joint], w, h)
-    left_den, vis_left_den = get_landmark_xy(landmarks, left_map[den_joint], w, h)
-    right_den, vis_right_den = get_landmark_xy(landmarks, right_map[den_joint], w, h)
-
-    visibilities = (vis_left_num, vis_right_num, vis_left_den, vis_right_den)
-    if not all(v > VISIBILITY_THRESHOLD for v in visibilities):
+    if not all(n in left_points and left_points[n][1] > VISIBILITY_THRESHOLD for n in (num_joint, den_joint)):
+        return None
+    if not all(n in right_points and right_points[n][1] > VISIBILITY_THRESHOLD for n in (num_joint, den_joint)):
         return None
 
-    numerator_distance = abs(left_num[0] - right_num[0])
-    denominator_distance = abs(left_den[0] - right_den[0])
+    numerator_distance = abs(left_points[num_joint][0][0] - right_points[num_joint][0][0])
+    denominator_distance = abs(left_points[den_joint][0][0] - right_points[den_joint][0][0])
     if denominator_distance == 0:
         return None
 
@@ -299,15 +292,16 @@ def compute_signed_line_offset(check_def, left_points, right_points):
         if not all(n in side_points and side_points[n][1] > VISIBILITY_THRESHOLD for n in required_names):
             return None
 
-        ax, ay = side_points[a_name][0][:2]
-        bx, by = side_points[b_name][0][:2]
-        cx, cy = side_points[c_name][0][:2]
-        dx, dy = cx - ax, cy - ay
-        length_sq = dx * dx + dy * dy
+        # Use Z and Y (body's sagittal plane)
+        az, ay = side_points[a_name][0][2], side_points[a_name][0][1]
+        bz, by = side_points[b_name][0][2], side_points[b_name][0][1]
+        cz, cy = side_points[c_name][0][2], side_points[c_name][0][1]
+        dz, dy = cz - az, cy - ay
+        length_sq = dz * dz + dy * dy
         if length_sq == 0:
             return None
 
-        t = ((bx - ax) * dx + (by - ay) * dy) / length_sq
+        t = ((bz - az) * dz + (by - ay) * dy) / length_sq
         proj_y = ay + t * dy
         length = length_sq ** 0.5
         return (by - proj_y) / length
@@ -331,16 +325,16 @@ def compute_extreme_side_angle(check_def, left_points, right_points, extreme="mi
 
 
 def compute_vertical_angle(check_def, left_points, right_points):
-    """Degrees from image-vertical (0 = torso standing upright)."""
+    """Degrees from gravity-vertical (0 = pointing straight down)."""
     a_name, b_name = check_def["points"]
 
     def side_angle(side_points):
         if not all(n in side_points and side_points[n][1] > VISIBILITY_THRESHOLD for n in (a_name, b_name)):
             return None
-        ax, ay = side_points[a_name][0][:2]
-        bx, by = side_points[b_name][0][:2]
-        vx, vy = ax - bx, ay - by
-        length = (vx * vx + vy * vy) ** 0.5
+        ax, ay, az = side_points[a_name][0][:3]
+        bx, by, bz = side_points[b_name][0][:3]
+        vx, vy, vz = ax - bx, ay - by, az - bz
+        length = (vx * vx + vy * vy + vz * vz) ** 0.5
         if length == 0:
             return None
         cosang = float(np.clip(-vy / length, -1.0, 1.0))
@@ -363,14 +357,14 @@ def compute_forward_offset(check_def, left_points, right_points):
         names = (hip_name, front_name, ref_name)
         if not all(n in side_points and side_points[n][1] > VISIBILITY_THRESHOLD for n in names):
             return None
-        hx, hy = side_points[hip_name][0][:2]
-        fx, _fy = side_points[front_name][0][:2]
-        rx, ry = side_points[ref_name][0][:2]
-        facing = 1.0 if (rx - hx) >= 0 else -1.0
-        scale = ((rx - hx) ** 2 + (ry - hy) ** 2) ** 0.5
+        hx, hy, hz = side_points[hip_name][0][:3]
+        fx, fy, fz = side_points[front_name][0][:3]
+        rx, ry, rz = side_points[ref_name][0][:3]
+        
+        scale = ((rx - hx) ** 2 + (ry - hy) ** 2 + (rz - hz) ** 2) ** 0.5
         if scale == 0:
             return None
-        return facing * (fx - rx) / scale
+        return (rz - fz) / scale
 
     return blend_side_values(
         side_offset(left_points),
@@ -388,12 +382,15 @@ def compute_segment_align(check_def, left_points, right_points):
     def side_align(side_points):
         if not all(n in side_points and side_points[n][1] > VISIBILITY_THRESHOLD for n in (a_name, b_name)):
             return None
-        ax, ay = side_points[a_name][0][:2]
-        bx, by = side_points[b_name][0][:2]
-        length = ((ax - bx) ** 2 + (ay - by) ** 2) ** 0.5
+        ax, ay, az = side_points[a_name][0][:3]
+        bx, by, bz = side_points[b_name][0][:3]
+        
+        length = ((ax - bx) ** 2 + (ay - by) ** 2 + (az - bz) ** 2) ** 0.5
         if length == 0:
             return None
-        return abs(ax - bx) / length
+            
+        drift = ((ax - bx) ** 2 + (az - bz) ** 2) ** 0.5
+        return drift / length
 
     return blend_side_values(
         side_align(left_points),
@@ -421,7 +418,7 @@ CHECK_COMPUTERS = {
         compute_extreme_side_angle(check_def, left_points, right_points, "max")
     ),
     "horizontal_ratio": lambda check_def, landmarks, left_points, right_points, exercise_config, w, h: (
-        compute_horizontal_ratio(check_def, landmarks, exercise_config, w, h)
+        compute_horizontal_ratio(check_def, left_points, right_points)
     ),
     "vertical_ratio": lambda check_def, landmarks, left_points, right_points, exercise_config, w, h: (
         compute_vertical_ratio(check_def, left_points, right_points)
@@ -450,8 +447,6 @@ def _average_of_sides(left_val, right_val):
 
 
 def compute_all_checks(landmarks, exercise_config, w, h, world_landmarks=None):
-    left_img = get_side_points(landmarks, exercise_config["landmarks"]["left"], w, h)
-    right_img = get_side_points(landmarks, exercise_config["landmarks"]["right"], w, h)
     if world_landmarks is not None:
         left_world = get_side_points(
             world_landmarks, exercise_config["landmarks"]["left"], None, None
@@ -460,23 +455,19 @@ def compute_all_checks(landmarks, exercise_config, w, h, world_landmarks=None):
             world_landmarks, exercise_config["landmarks"]["right"], None, None
         )
     else:
-        left_world, right_world = left_img, right_img
+        left_world = get_side_points(landmarks, exercise_config["landmarks"]["left"], w, h)
+        right_world = get_side_points(landmarks, exercise_config["landmarks"]["right"], w, h)
 
-    world_types = ("angle", "angle_asymmetry", "min_angle", "max_angle", "vertical_angle")
     raw_checks = {}
     for check_name, check_def in exercise_config["checks"].items():
         check_type = check_def["type"]
-        if check_type in world_types:
-            left_points, right_points = left_world, right_world
-        else:
-            left_points, right_points = left_img, right_img
         computer = CHECK_COMPUTERS[check_type]
         raw_checks[check_name] = computer(
-            check_def, landmarks, left_points, right_points, exercise_config, w, h
+            check_def, landmarks, left_world, right_world, exercise_config, w, h
         )
         if check_type in ("angle", "min_angle", "max_angle") and "points" in check_def:
-            raw_checks[f"{check_name}_left"] = compute_side_angle(check_def, left_points)
-            raw_checks[f"{check_name}_right"] = compute_side_angle(check_def, right_points)
+            raw_checks[f"{check_name}_left"] = compute_side_angle(check_def, left_world)
+            raw_checks[f"{check_name}_right"] = compute_side_angle(check_def, right_world)
 
     return raw_checks
 

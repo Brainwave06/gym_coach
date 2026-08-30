@@ -1,0 +1,358 @@
+{
+  "phase_and_counting": {
+    "squat": {
+      "phase_frame_accuracy": 0.9658,
+      "count_mae": 0.0,
+      "count_exact_pct": 100.0,
+      "n_test_sessions": 22
+    },
+    "box_squat": {
+      "phase_frame_accuracy": 0.9459,
+      "count_mae": 0.1923,
+      "count_exact_pct": 88.46,
+      "n_test_sessions": 26
+    },
+    "pushup": {
+      "phase_frame_accuracy": 0.9591,
+      "count_mae": 0.0,
+      "count_exact_pct": 100.0,
+      "n_test_sessions": 24
+    },
+    "knee_pushup": {
+      "phase_frame_accuracy": 0.9541,
+      "count_mae": 0.0,
+      "count_exact_pct": 100.0,
+      "n_test_sessions": 34
+    },
+    "lunge": {
+      "phase_frame_accuracy": 0.949,
+      "count_mae": 0.3793,
+      "count_exact_pct": 93.1,
+      "n_test_sessions": 29
+    },
+    "glute_bridge": {
+      "phase_frame_accuracy": 0.9014,
+      "count_mae": 0.1,
+      "count_exact_pct": 90.0,
+      "n_test_sessions": 30
+    },
+    "biceps_curl": {
+      "phase_frame_accuracy": 0.9664,
+      "count_mae": 0.0345,
+      "count_exact_pct": 96.55,
+      "n_test_sessions": 29
+    }
+  },
+  "fault_classification": {
+    "squat": {
+      "knee_valgus": {
+        "f1": 0.9438,
+        "support_pos_test": 47,
+        "n_test": 264
+      },
+      "heel_lift": {
+        "f1": 0.6923,
+        "support_pos_test": 17,
+        "n_test": 264
+      },
+      "knee_asymmetry": {
+        "f1": 0.8889,
+        "support_pos_test": 15,
+        "n_test": 264
+      },
+      "hip_asymmetry": {
+        "f1": 1.0,
+        "support_pos_test": 22,
+        "n_test": 264
+      },
+      "torso_lean": {
+        "f1": 0.7541,
+        "support_pos_test": 38,
+        "n_test": 264
+      },
+      "knees_past_toes": {
+        "f1": 0.7407,
+        "support_pos_test": 17,
+        "n_test": 264
+      },
+      "is_good": {
+        "f1": 0.9644,
+        "support_pos_test": 176,
+        "n_test": 264
+      },
+      "incomplete": {
+        "f1": 1.0,
+        "support_pos_test": 49,
+        "n_test": 264
+      }
+    },
+    "box_squat": {
+      "knee_valgus": {
+        "f1": 0.6957,
+        "support_pos_test": 15,
+        "n_test": 176
+      },
+      "heel_lift": {
+        "f1": 0.9643,
+        "support_pos_test": 29,
+        "n_test": 176
+      },
+      "knee_asymmetry": {
+        "f1": 0.875,
+        "support_pos_test": 18,
+        "n_test": 176
+      },
+      "hip_asymmetry": {
+        "f1": 0.9677,
+        "support_pos_test": 16,
+        "n_test": 176
+      },
+      "torso_lean": {
+        "f1": 0.9348,
+        "support_pos_test": 45,
+        "n_test": 176
+      },
+      "knees_past_toes": {
+        "f1": 0.9388,
+        "support_pos_test": 26,
+        "n_test": 176
+      },
+      "is_good": {
+        "f1": 0.9437,
+        "support_pos_test": 113,
+        "n_test": 176
+      },
+      "incomplete": {
+        "f1": 0.4,
+        "support_pos_test": 12,
+        "n_test": 176
+      }
+    },
+    "pushup": {
+      "body_line": {
+        "f1": 0.9444,
+        "support_pos_test": 19,
+        "n_test": 158
+      },
+      "hip_sag": {
+        "f1": 0.6154,
+        "support_pos_test": 9,
+        "n_test": 158
+      },
+      "hip_pike": {
+        "f1": 0.8,
+        "support_pos_test": 3,
+        "n_test": 158
+      },
+      "knee": {
+        "f1": 0.9831,
+        "support_pos_test": 30,
+        "n_test": 158
+      },
+      "elbow_flare": {
+        "f1": 0.8696,
+        "support_pos_test": 13,
+        "n_test": 158
+      },
+      "head_drop": {
+        "f1": 0.5455,
+        "support_pos_test": 8,
+        "n_test": 158
+      },
+      "is_good": {
+        "f1": 0.9823,
+        "support_pos_test": 111,
+        "n_test": 158
+      },
+      "incomplete": {
+        "f1": 0.6429,
+        "support_pos_test": 19,
+        "n_test": 158
+      }
+    },
+    "knee_pushup": {
+      "body_line": {
+        "f1": 0.961,
+        "support_pos_test": 40,
+        "n_test": 199
+      },
+      "hip_sag": {
+        "f1": 1.0,
+        "support_pos_test": 26,
+        "n_test": 199
+      },
+      "hip_pike": {
+        "f1": 0.9524,
+        "support_pos_test": 22,
+        "n_test": 199
+      },
+      "elbow_flare": {
+        "f1": 1.0,
+        "support_pos_test": 35,
+        "n_test": 199
+      },
+      "head_drop": {
+        "f1": 0.9811,
+        "support_pos_test": 27,
+        "n_test": 199
+      },
+      "is_good": {
+        "f1": 0.9772,
+        "support_pos_test": 107,
+        "n_test": 199
+      },
+      "incomplete": {
+        "f1": 0.8333,
+        "support_pos_test": 7,
+        "n_test": 199
+      }
+    },
+    "lunge": {
+      "torso_lean": {
+        "f1": 0.9706,
+        "support_pos_test": 35,
+        "n_test": 207
+      },
+      "knees_past_toes": {
+        "f1": 0.9143,
+        "support_pos_test": 55,
+        "n_test": 207
+      },
+      "is_good": {
+        "f1": 0.9892,
+        "support_pos_test": 138,
+        "n_test": 207
+      },
+      "incomplete": {
+        "f1": 0.75,
+        "support_pos_test": 24,
+        "n_test": 207
+      }
+    },
+    "glute_bridge": {
+      "knee": {
+        "f1": 1.0,
+        "support_pos_test": 34,
+        "n_test": 202
+      },
+      "hip_asymmetry": {
+        "f1": 0.8941,
+        "support_pos_test": 47,
+        "n_test": 202
+      },
+      "is_good": {
+        "f1": 0.9846,
+        "support_pos_test": 128,
+        "n_test": 202
+      },
+      "incomplete": {
+        "f1": 0.4,
+        "support_pos_test": 12,
+        "n_test": 202
+      }
+    },
+    "biceps_curl": {
+      "torso_lean": {
+        "f1": 0.9818,
+        "support_pos_test": 56,
+        "n_test": 208
+      },
+      "shoulder_swing": {
+        "f1": 0.9921,
+        "support_pos_test": 64,
+        "n_test": 208
+      },
+      "is_good": {
+        "f1": 0.9895,
+        "support_pos_test": 142,
+        "n_test": 208
+      },
+      "incomplete": {
+        "f1": 0.9091,
+        "support_pos_test": 18,
+        "n_test": 208
+      }
+    },
+    "plank": {
+      "hip_sag": {
+        "f1": 1.0,
+        "support_pos_test": 5,
+        "n_test": 65
+      },
+      "hip_pike": {
+        "f1": 1.0,
+        "support_pos_test": 5,
+        "n_test": 65
+      },
+      "knee": {
+        "f1": 1.0,
+        "support_pos_test": 14,
+        "n_test": 65
+      },
+      "shoulder_stack": {
+        "f1": 1.0,
+        "support_pos_test": 5,
+        "n_test": 65
+      },
+      "is_good": {
+        "f1": 0.9859,
+        "support_pos_test": 35,
+        "n_test": 65
+      }
+    },
+    "wall_sit": {
+      "torso_lean": {
+        "f1": 1.0,
+        "support_pos_test": 5,
+        "n_test": 75
+      },
+      "knee_asymmetry": {
+        "f1": 1.0,
+        "support_pos_test": 8,
+        "n_test": 75
+      },
+      "is_good": {
+        "f1": 1.0,
+        "support_pos_test": 64,
+        "n_test": 75
+      }
+    },
+    "bird_dog": {
+      "hip_sag": {
+        "f1": 1.0,
+        "support_pos_test": 27,
+        "n_test": 76
+      },
+      "is_good": {
+        "f1": 1.0,
+        "support_pos_test": 53,
+        "n_test": 76
+      }
+    },
+    "dead_bug": {
+      "low_back_arch": {
+        "f1": 1.0,
+        "support_pos_test": 23,
+        "n_test": 75
+      },
+      "is_good": {
+        "f1": 1.0,
+        "support_pos_test": 55,
+        "n_test": 75
+      }
+    }
+  },
+  "macro_f1_faults": {
+    "squat": 0.8366333333333333,
+    "box_squat": 0.8960499999999999,
+    "pushup": 0.7929999999999998,
+    "knee_pushup": 0.9789,
+    "lunge": 0.94245,
+    "glute_bridge": 0.94705,
+    "biceps_curl": 0.98695,
+    "plank": 1.0,
+    "wall_sit": 1.0,
+    "bird_dog": 1.0,
+    "dead_bug": 1.0
+  }
+}

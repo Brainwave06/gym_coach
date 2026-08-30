@@ -1,9 +1,9 @@
 {
-  "name": "Abdelrahman Atef",
+  "name": "Mohamed Hemdan",
   "goal": "strength",
   "experience": "beginner",
   "injuries": [
-    "back"
+    "knees"
   ],
   "equipment": "floor",
   "time_budget_min": 25,
@@ -11,5 +11,5 @@
   "cue_gap_seconds": 4.0,
   "progression": {},
   "camera_setup": null,
-  "user_id": "usr_2920acc752"
+  "user_id": "usr_faa9d89fff"
 }

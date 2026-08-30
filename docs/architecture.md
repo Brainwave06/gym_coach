@@ -24,6 +24,8 @@ squat/, plank/, …       per-exercise config
 data/                   local only (not packed for friends)
 models/                 pose_landmarker_*.task
 docs/                   this documentation
+synthetic_gym_dataset/  synthetic pose JSONL + split (form ML)
+models/form/            trained error/phase forests
 ```
 
 ## Data written at runtime

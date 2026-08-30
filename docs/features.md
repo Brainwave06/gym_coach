@@ -18,6 +18,7 @@ Everything below is implemented in this desktop coach.
 - Rep counting or hold timers
 - Form cues (depth, sag, heels, knees, etc.)
 - **Does not count** when pose confidence is low (“I'm not sure”)
+- **ML form helper** (optional) — error labels from `models/form/` if present; counting stays rule-based. See [ml-report.md](ml-report.md).
 - **Form fade** — stops the set if the last reps are mostly bad
 - **Tempo** — cues a slower eccentric if the lowering is too fast
 - **Last good rep** — saved under `data/clips/` and replayed before the next set of that move

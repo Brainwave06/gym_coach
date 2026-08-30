@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-08-28T23:13:31",
+  "generated_at": "2026-08-30T14:54:06",
   "users": 5,
-  "sessions": 22,
-  "form_cues": 43,
+  "sessions": 30,
+  "form_cues": 53,
   "files": {
     "users": "users.jsonl",
     "sessions": "sessions.jsonl",

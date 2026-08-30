@@ -41,6 +41,20 @@ EXERCISE_CONFIG = {
             "up_threshold": None,
             "direction": "above",
         },
+        "arm_lift": {
+            "type": "max_angle",
+            "points": ("hip", "shoulder", "wrist"),
+            "down_threshold": 145,
+            "up_threshold": None,
+            "direction": "above",
+        },
+        "leg_lift": {
+            "type": "max_angle",
+            "points": ("shoulder", "hip", "ankle"),
+            "down_threshold": 150,
+            "up_threshold": None,
+            "direction": "above",
+        },
         "hip_twist": {
             "type": "angle_asymmetry",
             "points": ("shoulder", "hip", "knee"),
@@ -50,11 +64,11 @@ EXERCISE_CONFIG = {
         },
     },
     "primary_check": "knee",
-    "depth_checks": ["knee", "elbow"],
+    "depth_checks": ["knee", "elbow", "arm_lift", "leg_lift"],
     "fault_checks": ["hip_sag"],
     "feedback_rules": [
         {
-            "require": {"knee": True, "elbow": True, "hip_sag": False},
+            "require": {"knee": True, "elbow": True, "arm_lift": True, "leg_lift": True, "hip_sag": False},
             "message": "Reach long - square hips, {side} leg extended",
             "counts_as_good": True,
         },
@@ -65,7 +79,17 @@ EXERCISE_CONFIG = {
         },
         {
             "require": {"elbow": False},
-            "message": "Reach the opposite arm forward",
+            "message": "Straighten the opposite arm",
+            "counts_as_good": False,
+        },
+        {
+            "require": {"arm_lift": False},
+            "message": "Raise your arm higher, parallel to the floor",
+            "counts_as_good": False,
+        },
+        {
+            "require": {"leg_lift": False},
+            "message": "Raise your back leg higher, parallel to the floor",
             "counts_as_good": False,
         },
         {

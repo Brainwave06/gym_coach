@@ -1,0 +1,193 @@
+{
+  "dataset_type": "synthetic",
+  "note": "Fully synthetic pose-derived time series. No real video, no real people, no scraped footage. Not equivalent to real webcam data.",
+  "n_athletes": 100,
+  "n_sessions_total": 2196,
+  "exercises": [
+    "squat",
+    "box_squat",
+    "pushup",
+    "knee_pushup",
+    "lunge",
+    "glute_bridge",
+    "biceps_curl",
+    "plank",
+    "wall_sit",
+    "bird_dog",
+    "dead_bug"
+  ],
+  "camera_convention": {
+    "squat": "front",
+    "box_squat": "front",
+    "pushup": "side",
+    "knee_pushup": "side",
+    "lunge": "side",
+    "glute_bridge": "side",
+    "biceps_curl": "side",
+    "plank": "side",
+    "wall_sit": "side",
+    "bird_dog": "side",
+    "dead_bug": "side"
+  },
+  "split_ratios": {
+    "train": 0.62,
+    "val": 0.16,
+    "test": 0.22
+  },
+  "split_athlete_counts": {
+    "train": 62,
+    "val": 16,
+    "test": 22
+  },
+  "per_exercise": {
+    "squat": {
+      "sessions": 100,
+      "mode": "reps",
+      "completed_reps": 1000,
+      "attempted_reps": 1200,
+      "incomplete_rate": 0.1958,
+      "fault_rate_of_completed": 0.33,
+      "two_fault_rate_given_fault": 0.3939,
+      "fault_label_true_rate": {
+        "knee_valgus": 0.173,
+        "torso_lean": 0.103,
+        "is_good": 0.776,
+        "knee_asymmetry": 0.081,
+        "hip_asymmetry": 0.065,
+        "knees_past_toes": 0.065,
+        "heel_lift": 0.019
+      }
+    },
+    "box_squat": {
+      "sessions": 123,
+      "mode": "reps",
+      "completed_reps": 804,
+      "attempted_reps": 840,
+      "incomplete_rate": 0.0714,
+      "fault_rate_of_completed": 0.5659,
+      "two_fault_rate_given_fault": 0.3473,
+      "fault_label_true_rate": {
+        "torso_lean": 0.2301,
+        "is_good": 0.6244,
+        "knees_past_toes": 0.1903,
+        "knee_asymmetry": 0.0958,
+        "heel_lift": 0.1803,
+        "knee_valgus": 0.0709,
+        "hip_asymmetry": 0.0647
+      }
+    },
+    "pushup": {
+      "sessions": 127,
+      "mode": "reps",
+      "completed_reps": 794,
+      "attempted_reps": 814,
+      "incomplete_rate": 0.0848,
+      "fault_rate_of_completed": 0.4156,
+      "two_fault_rate_given_fault": 0.3242,
+      "fault_label_true_rate": {
+        "is_good": 0.6348,
+        "body_line": 0.1159,
+        "head_drop": 0.0768,
+        "hip_sag": 0.0756,
+        "elbow_flare": 0.0718,
+        "knee": 0.1851,
+        "hip_pike": 0.0252
+      }
+    },
+    "knee_pushup": {
+      "sessions": 147,
+      "mode": "reps",
+      "completed_reps": 907,
+      "attempted_reps": 957,
+      "incomplete_rate": 0.0522,
+      "fault_rate_of_completed": 0.5248,
+      "two_fault_rate_given_fault": 0.3803,
+      "fault_label_true_rate": {
+        "is_good": 0.527,
+        "body_line": 0.1797,
+        "elbow_flare": 0.2095,
+        "head_drop": 0.1863,
+        "hip_sag": 0.1312,
+        "hip_pike": 0.1279
+      }
+    },
+    "lunge": {
+      "sessions": 136,
+      "mode": "reps",
+      "completed_reps": 935,
+      "attempted_reps": 951,
+      "incomplete_rate": 0.1262,
+      "fault_rate_of_completed": 0.3476,
+      "two_fault_rate_given_fault": 0.1077,
+      "fault_label_true_rate": {
+        "is_good": 0.5861,
+        "knees_past_toes": 0.1925,
+        "torso_lean": 0.1925
+      }
+    },
+    "glute_bridge": {
+      "sessions": 130,
+      "mode": "reps",
+      "completed_reps": 822,
+      "attempted_reps": 829,
+      "incomplete_rate": 0.0507,
+      "fault_rate_of_completed": 0.3443,
+      "two_fault_rate_given_fault": 0.0813,
+      "fault_label_true_rate": {
+        "knee": 0.1606,
+        "hip_asymmetry": 0.2117,
+        "is_good": 0.6375
+      }
+    },
+    "biceps_curl": {
+      "sessions": 143,
+      "mode": "reps",
+      "completed_reps": 1007,
+      "attempted_reps": 1081,
+      "incomplete_rate": 0.0907,
+      "fault_rate_of_completed": 0.4211,
+      "two_fault_rate_given_fault": 0.2524,
+      "fault_label_true_rate": {
+        "shoulder_swing": 0.2602,
+        "is_good": 0.6405,
+        "torso_lean": 0.2671
+      }
+    },
+    "plank": {
+      "sessions": 305,
+      "mode": "hold",
+      "fault_label_true_rate": {
+        "knee": 0.1803,
+        "is_good": 0.4951,
+        "hip_sag": 0.0984,
+        "shoulder_stack": 0.1377,
+        "hip_pike": 0.0754
+      }
+    },
+    "wall_sit": {
+      "sessions": 335,
+      "mode": "hold",
+      "fault_label_true_rate": {
+        "is_good": 0.7731,
+        "knee_asymmetry": 0.1403,
+        "torso_lean": 0.1104
+      }
+    },
+    "bird_dog": {
+      "sessions": 320,
+      "mode": "hold",
+      "fault_label_true_rate": {
+        "is_good": 0.6687,
+        "hip_sag": 0.4125
+      }
+    },
+    "dead_bug": {
+      "sessions": 330,
+      "mode": "hold",
+      "fault_label_true_rate": {
+        "is_good": 0.7,
+        "low_back_arch": 0.3515
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "name": "Ahmed Atef",
+  "name": "Abdelrahman Atef",
   "goal": "strength",
   "experience": "beginner",
   "injuries": [
@@ -15,29 +15,11 @@
       "sets": 1,
       "reps": 6,
       "hold": 25,
-      "last_feel": "easy",
-      "last_quality": 0.4,
+      "last_feel": "skip",
+      "last_quality": 0.0,
       "last_ended": "form_fade"
-    },
-    "wall_sit": {
-      "variant": "wall_sit",
-      "sets": 2,
-      "reps": 8,
-      "hold": 30,
-      "last_feel": "hard",
-      "last_quality": 0.682,
-      "last_ended": "target"
-    },
-    "bird_dog": {
-      "variant": "bird_dog",
-      "sets": 2,
-      "reps": 9,
-      "hold": 35,
-      "last_feel": "easy",
-      "last_quality": 0.89,
-      "last_ended": "target"
     }
   },
   "camera_setup": null,
-  "user_id": "usr_687c8c5744"
+  "user_id": "usr_2920acc752"
 }

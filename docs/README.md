@@ -11,6 +11,8 @@ This folder is the product spec for the **desktop CV coach**. The Flutter app, b
 5. [dataset.md](dataset.md) — `data/dataset/` for backend/chatbot
 6. [for-teammates.md](for-teammates.md) — how CV connects later (no wiring yet)
 7. [architecture.md](architecture.md) — files and data paths
+8. [ml-report.md](ml-report.md) — form models trained on `synthetic_gym_dataset/`
+9. [data-generation-prompt.md](data-generation-prompt.md) — how to get more data without filming people
 
 ## What this product is
 

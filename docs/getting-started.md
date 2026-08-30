@@ -27,6 +27,7 @@ Or activate the venv and run `python main.py`.
 | `python main.py squat` | Practice squat (also: plank, pushup, lunge, …) |
 | `python main.py --onboard` | Redo intake questions |
 | `python main.py --dataset` | Rebuild `data/dataset/` and exit |
+| `python -m ml.run_pipeline` | Train form models from `synthetic_gym_dataset/` |
 
 ## First-time onboarding
 
