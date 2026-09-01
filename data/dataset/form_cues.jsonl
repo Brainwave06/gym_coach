@@ -66,22 +66,22 @@
 {"user_id": "usr_2920acc752", "session_id": "ses_369d808010f4", "exercise_id": "wall_sit", "cue": "Uneven - left leg is taking more load", "count": 1, "saved_at": "2026-09-01T16:41:33"}
 {"user_id": "usr_2920acc752", "session_id": "ses_9ddabe4e4937", "exercise_id": "squat", "cue": "Knees too far forward - sit hips back", "count": 3, "saved_at": "2026-09-01T16:44:23"}
 {"user_id": "usr_2920acc752", "session_id": "ses_9ddabe4e4937", "exercise_id": "squat", "cue": "Uneven - both sides leg is doing more of the work", "count": 1, "saved_at": "2026-09-01T16:44:23"}
-{"user_id": "usr_demo_lina", "session_id": "ses_1733cc161941", "exercise_id": "box_squat", "cue": "Sit the hips back", "count": 2, "saved_at": "2026-08-23T19:24:25"}
-{"user_id": "usr_demo_lina", "session_id": "ses_1733cc161941", "exercise_id": "box_squat", "cue": "Good depth!", "count": 9, "saved_at": "2026-08-23T19:24:25"}
-{"user_id": "usr_demo_lina", "session_id": "ses_1733cc161941", "exercise_id": "knee_pushup", "cue": "Keep a straight line", "count": 3, "saved_at": "2026-08-23T19:24:25"}
-{"user_id": "usr_demo_lina", "session_id": "ses_1733cc161941", "exercise_id": "plank", "cue": "Don't sag", "count": 1, "saved_at": "2026-08-23T19:24:25"}
-{"user_id": "usr_demo_lina", "session_id": "ses_a3dd470dcd04", "exercise_id": "glute_bridge", "cue": "Strong lockout!", "count": 12, "saved_at": "2026-08-25T19:24:25"}
-{"user_id": "usr_demo_lina", "session_id": "ses_a3dd470dcd04", "exercise_id": "bird_dog", "cue": "Hips square", "count": 4, "saved_at": "2026-08-25T19:24:25"}
-{"user_id": "usr_demo_omar", "session_id": "ses_c550a45c4624", "exercise_id": "squat", "cue": "Good depth!", "count": 20, "saved_at": "2026-08-24T19:24:25"}
-{"user_id": "usr_demo_omar", "session_id": "ses_c550a45c4624", "exercise_id": "squat", "cue": "Heels down", "count": 2, "saved_at": "2026-08-24T19:24:25"}
-{"user_id": "usr_demo_omar", "session_id": "ses_c550a45c4624", "exercise_id": "pushup", "cue": "Clean push-up!", "count": 14, "saved_at": "2026-08-24T19:24:25"}
-{"user_id": "usr_demo_omar", "session_id": "ses_c550a45c4624", "exercise_id": "pushup", "cue": "Hips sagging", "count": 4, "saved_at": "2026-08-24T19:24:25"}
-{"user_id": "usr_demo_omar", "session_id": "ses_c550a45c4624", "exercise_id": "biceps_curl", "cue": "Elbow pinned", "count": 3, "saved_at": "2026-08-24T19:24:25"}
-{"user_id": "usr_demo_omar", "session_id": "ses_e94082584c06", "exercise_id": "lunge", "cue": "Front knee racing past toes", "count": 6, "saved_at": "2026-08-26T19:24:25"}
-{"user_id": "usr_demo_omar", "session_id": "ses_e94082584c06", "exercise_id": "lunge", "cue": "Solid lunge (right)!", "count": 5, "saved_at": "2026-08-26T19:24:25"}
-{"user_id": "usr_demo_omar", "session_id": "ses_e94082584c06", "exercise_id": "lunge", "cue": "Solid lunge (left)!", "count": 3, "saved_at": "2026-08-26T19:24:25"}
-{"user_id": "usr_demo_sara", "session_id": "ses_f7e6b384d21a", "exercise_id": "glute_bridge", "cue": "Even through both heels", "count": 2, "saved_at": "2026-08-27T19:24:25"}
-{"user_id": "usr_demo_sara", "session_id": "ses_f7e6b384d21a", "exercise_id": "dead_bug", "cue": "Ribs down", "count": 3, "saved_at": "2026-08-27T19:24:25"}
-{"user_id": "usr_demo_karim", "session_id": "ses_f5f7e6ee8d98", "exercise_id": "squat", "cue": "Good depth!", "count": 28, "saved_at": "2026-08-28T19:24:25"}
-{"user_id": "usr_demo_karim", "session_id": "ses_f5f7e6ee8d98", "exercise_id": "lunge", "cue": "Torso tipping", "count": 5, "saved_at": "2026-08-28T19:24:25"}
-{"user_id": "usr_demo_karim", "session_id": "ses_f5f7e6ee8d98", "exercise_id": "lunge", "cue": "Solid lunge (right)!", "count": 8, "saved_at": "2026-08-28T19:24:25"}
+{"user_id": "usr_demo_lina", "session_id": "ses_ed6a933eb7ba", "exercise_id": "box_squat", "cue": "Sit the hips back", "count": 2, "saved_at": "2026-08-23T19:49:54"}
+{"user_id": "usr_demo_lina", "session_id": "ses_ed6a933eb7ba", "exercise_id": "box_squat", "cue": "Good depth!", "count": 9, "saved_at": "2026-08-23T19:49:54"}
+{"user_id": "usr_demo_lina", "session_id": "ses_ed6a933eb7ba", "exercise_id": "knee_pushup", "cue": "Keep a straight line", "count": 3, "saved_at": "2026-08-23T19:49:54"}
+{"user_id": "usr_demo_lina", "session_id": "ses_ed6a933eb7ba", "exercise_id": "plank", "cue": "Don't sag", "count": 1, "saved_at": "2026-08-23T19:49:54"}
+{"user_id": "usr_demo_lina", "session_id": "ses_616b08c305e1", "exercise_id": "glute_bridge", "cue": "Strong lockout!", "count": 12, "saved_at": "2026-08-25T19:49:54"}
+{"user_id": "usr_demo_lina", "session_id": "ses_616b08c305e1", "exercise_id": "bird_dog", "cue": "Hips square", "count": 4, "saved_at": "2026-08-25T19:49:54"}
+{"user_id": "usr_demo_omar", "session_id": "ses_f328defd8e01", "exercise_id": "squat", "cue": "Good depth!", "count": 20, "saved_at": "2026-08-24T19:49:54"}
+{"user_id": "usr_demo_omar", "session_id": "ses_f328defd8e01", "exercise_id": "squat", "cue": "Heels down", "count": 2, "saved_at": "2026-08-24T19:49:54"}
+{"user_id": "usr_demo_omar", "session_id": "ses_f328defd8e01", "exercise_id": "pushup", "cue": "Clean push-up!", "count": 14, "saved_at": "2026-08-24T19:49:54"}
+{"user_id": "usr_demo_omar", "session_id": "ses_f328defd8e01", "exercise_id": "pushup", "cue": "Hips sagging", "count": 4, "saved_at": "2026-08-24T19:49:54"}
+{"user_id": "usr_demo_omar", "session_id": "ses_f328defd8e01", "exercise_id": "biceps_curl", "cue": "Elbow pinned", "count": 3, "saved_at": "2026-08-24T19:49:54"}
+{"user_id": "usr_demo_omar", "session_id": "ses_42bdad94449a", "exercise_id": "lunge", "cue": "Front knee racing past toes", "count": 6, "saved_at": "2026-08-26T19:49:54"}
+{"user_id": "usr_demo_omar", "session_id": "ses_42bdad94449a", "exercise_id": "lunge", "cue": "Solid lunge (right)!", "count": 5, "saved_at": "2026-08-26T19:49:54"}
+{"user_id": "usr_demo_omar", "session_id": "ses_42bdad94449a", "exercise_id": "lunge", "cue": "Solid lunge (left)!", "count": 3, "saved_at": "2026-08-26T19:49:54"}
+{"user_id": "usr_demo_sara", "session_id": "ses_3fcdc06b116e", "exercise_id": "glute_bridge", "cue": "Even through both heels", "count": 2, "saved_at": "2026-08-27T19:49:54"}
+{"user_id": "usr_demo_sara", "session_id": "ses_3fcdc06b116e", "exercise_id": "dead_bug", "cue": "Ribs down", "count": 3, "saved_at": "2026-08-27T19:49:54"}
+{"user_id": "usr_demo_karim", "session_id": "ses_440106d9b94e", "exercise_id": "squat", "cue": "Good depth!", "count": 28, "saved_at": "2026-08-28T19:49:54"}
+{"user_id": "usr_demo_karim", "session_id": "ses_440106d9b94e", "exercise_id": "lunge", "cue": "Torso tipping", "count": 5, "saved_at": "2026-08-28T19:49:54"}
+{"user_id": "usr_demo_karim", "session_id": "ses_440106d9b94e", "exercise_id": "lunge", "cue": "Solid lunge (right)!", "count": 8, "saved_at": "2026-08-28T19:49:54"}

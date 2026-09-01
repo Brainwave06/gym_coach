@@ -13,14 +13,10 @@ _TEMPLATE = (
 REGRESS = {
     "pushup": "knee_pushup",
     "knee_pushup": "knee_pushup",
-    "squat": "box_squat",
-    "box_squat": "box_squat",
-    "lunge": "box_squat",
 }
 
 PROGRESS = {
     "knee_pushup": "pushup",
-    "box_squat": "squat",
 }
 
 _BILATERAL = {"lunge", "biceps_curl", "bird_dog"}

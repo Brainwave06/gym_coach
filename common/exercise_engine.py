@@ -1086,8 +1086,8 @@ def run_exercise(exercise_config, options=None):
     landmarker = mp_vision.PoseLandmarker.create_from_options(mp_options)
 
     cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
     if not cap.isOpened():
         print("Could not open the camera.")
         landmarker.close()
@@ -1171,8 +1171,15 @@ def run_exercise(exercise_config, options=None):
                     if not ret:
                         video_finished = True
                     else:
-                        demo_frame = cv2.resize(demo_frame, (w, h))
-                        frame = demo_frame
+                        dh, dw, _ = demo_frame.shape
+                        scale = min(w / dw, h / dh)
+                        new_w, new_h = int(dw * scale), int(dh * scale)
+                        resized_demo = cv2.resize(demo_frame, (new_w, new_h))
+                        padded_demo = np.zeros((h, w, 3), dtype=np.uint8)
+                        y_off = (h - new_h) // 2
+                        x_off = (w - new_w) // 2
+                        padded_demo[y_off:y_off+new_h, x_off:x_off+new_w] = resized_demo
+                        frame = padded_demo
                         
                 draw_banner(frame, cfg["display_name"], teach_text[:70] + " (SPACE to skip)")
                 
@@ -1258,7 +1265,8 @@ def run_exercise(exercise_config, options=None):
                 if not session["uncertain"]:
                     active_feedback = session["feedback_msg"]
 
-            draw_hud(frame, session, checks, active_feedback, cfg)
+            if not (session["phase"] == "teach" and demo_cap is not None and demo_cap.isOpened()):
+                draw_hud(frame, session, checks, active_feedback, cfg)
             cv2.imshow(window_name, frame)
 
             key = cv2.waitKey(5) & 0xFF

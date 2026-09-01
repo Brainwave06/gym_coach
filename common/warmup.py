@@ -321,6 +321,9 @@ def _run_follow_along(drills, title, total_hint):
 
     landmarker, mp, draw_landmarks = _make_landmarker()
     cap = cv2.VideoCapture(0) if landmarker else None
+    if cap is not None:
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
     if cap is not None and not cap.isOpened():
         cap.release()
         cap = None

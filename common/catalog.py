@@ -27,20 +27,8 @@ def _knee_pushup():
     return cfg
 
 
-def _box_squat():
-    cfg = copy.deepcopy(SQUAT_CONFIG)
-    cfg["display_name"] = "Box Squat"
-    cfg["id"] = "box_squat"
-    cfg["setup_hint"] = "Sit back as if to a chair — stop above parallel is OK."
-    cfg["calibrate_hint"] = "Stand tall. Imagine sitting to a box behind you."
-    cfg["checks"]["knee"]["down_threshold"] = 115
-    cfg["checks"]["hip"]["down_threshold"] = 125
-    return cfg
-
-
 BASE = {
     "squat": SQUAT_CONFIG,
-    "box_squat": _box_squat(),
     "plank": PLANK_CONFIG,
     "pushup": PUSHUP_CONFIG,
     "knee_pushup": _knee_pushup(),
@@ -57,7 +45,6 @@ for key, cfg in BASE.items():
 
 TEACH = {
     "squat": "Feet under shoulders. Sit the hips back. Chest tall. Heels stay down.",
-    "box_squat": "Sit back toward an imaginary box. Stop when thighs are above parallel, then stand.",
     "plank": "Straight line head to heels. Squeeze glutes. Don't let hips sag.",
     "pushup": "Hands under shoulders. Lower the chest, body rigid, press up.",
     "knee_pushup": "Knees on the floor. Same rigid body as a push-up. Lower chest, press up.",
