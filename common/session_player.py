@@ -75,13 +75,14 @@ def _voice_options(profile):
     return {
         "voice": True,
         "voice_mode": profile.get("voice_mode") or "full",
+        "voice_gender": profile.get("voice_gender") or "Female",
         "cue_gap_seconds": profile.get("cue_gap_seconds") or 4.0,
         "prefer_full": True,
     }
 
 
 def run_todays_workout(profile):
-    configure_voice(profile.get("voice_mode") or "full", profile.get("cue_gap_seconds") or 4.0)
+    configure_voice(profile.get("voice_mode") or "full", profile.get("cue_gap_seconds") or 4.0, profile.get("voice_gender") or "Female")
     recovery = False
     suggest, reason = should_suggest_recovery()
     if suggest:

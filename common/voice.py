@@ -13,12 +13,14 @@ _mode = "full"
 _generation = 0
 _current_proc = None
 _proc_lock = threading.Lock()
+_voice_gender = "Female"
 
 
-def configure_voice(mode="full", cue_gap_seconds=4.0):
+def configure_voice(mode="full", cue_gap_seconds=4.0, gender="Female"):
     """full = normal talk, quiet = sparse cues, text = print only."""
-    global _mode, _MIN_GAP
+    global _mode, _MIN_GAP, _voice_gender
     _mode = mode if mode in ("full", "quiet", "text") else "full"
+    _voice_gender = gender if gender in ("Male", "Female") else "Female"
     gap = float(cue_gap_seconds or 4.0)
     if _mode == "quiet":
         _MIN_GAP = max(6.0, gap)
@@ -64,7 +66,9 @@ def _speak_windows(text, generation):
         return
     command = (
         "Add-Type -AssemblyName System.Speech; "
-        f"(New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak('{safe}')"
+        "$s = New-Object System.Speech.Synthesis.SpeechSynthesizer; "
+        f"$s.SelectVoiceByHints([System.Speech.Synthesis.VoiceGender]::{_voice_gender}); "
+        f"$s.Speak('{safe}')"
     )
     try:
         proc = subprocess.Popen(

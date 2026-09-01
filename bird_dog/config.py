@@ -6,7 +6,8 @@ EXERCISE_CONFIG = {
     "hold_direction": "above",
     "side_check": "knee",
     "calibrate_seconds": 2.5,
-    "setup_hint": "On all fours, sideways to the camera",
+    "setup_hint": "On all fours, sideways to the camera. For best 3D measurement, angle slightly.",
+    "important_joints": ["shoulder", "elbow", "wrist", "hip", "knee", "ankle"],
     "calibrate_hint": "Reach one arm forward and the opposite leg back",
     "not_visible_message": "Get on all fours sideways so arm and leg are visible",
     "landmarks": {

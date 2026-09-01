@@ -13,9 +13,9 @@ import mediapipe as mp
 from mediapipe.tasks import python as mp_python
 from mediapipe.tasks.python import vision as mp_vision
 
-from common.clips import load_clip, save_clip
 from common.history import append_session
 from common.models import resolve_model_path
+from common.voice import configure_voice, speak, spoken_from_message, stop_voice
 from common.voice import configure_voice, speak, spoken_from_message, stop_voice
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -126,8 +126,13 @@ def _pixel_point(lm, w, h):
 
 def exercise_joint_indices(exercise_config):
     indices = set()
+    if not exercise_config:
+        return indices
+    important = exercise_config.get("important_joints")
     for side_map in exercise_config.get("landmarks", {}).values():
-        indices.update(side_map.values())
+        for name, idx in side_map.items():
+            if not important or name in important:
+                indices.add(idx)
     return indices
 
 
@@ -136,20 +141,35 @@ def draw_landmarks(frame, landmarks, exercise_config=None):
     confidences = [landmark_confidence(lm) for lm in landmarks]
     points = [_pixel_point(lm, w, h) for lm in landmarks]
     highlight = exercise_joint_indices(exercise_config) if exercise_config else set()
+    important_only = bool(exercise_config and exercise_config.get("important_joints"))
 
-    for connections, color, thickness in POSE_CONNECTION_COLORS:
+    for connections, color, default_thickness in POSE_CONNECTION_COLORS:
         for start_idx, end_idx in connections:
             if start_idx >= len(points) or end_idx >= len(points):
+                continue
+            if important_only and (start_idx not in highlight or end_idx not in highlight):
                 continue
             if (confidences[start_idx] < DRAW_CONFIDENCE_THRESHOLD
                     or confidences[end_idx] < DRAW_CONFIDENCE_THRESHOLD):
                 continue
+            
+            z_start = landmarks[start_idx].z if landmarks[start_idx].z is not None else 0
+            z_end = landmarks[end_idx].z if landmarks[end_idx].z is not None else 0
+            avg_z = (z_start + z_end) / 2.0
+            thickness = max(1, int(default_thickness - avg_z * 5))
+            
             cv2.line(frame, points[start_idx], points[end_idx], color, thickness, cv2.LINE_AA)
 
     for idx, point in enumerate(points):
         if confidences[idx] < DRAW_CONFIDENCE_THRESHOLD:
             continue
-        radius = 6 if idx in highlight else 4
+        if important_only and idx not in highlight:
+            continue
+            
+        z = landmarks[idx].z if landmarks[idx].z is not None else 0
+        base_radius = 6 if idx in highlight else 4
+        radius = max(2, int(base_radius - z * 10))
+        
         fill = (0, 255, 255) if idx in highlight else (0, 255, 0)
         cv2.circle(frame, point, radius + 1, (20, 20, 20), 2, cv2.LINE_AA)
         cv2.circle(frame, point, radius, fill, -1, cv2.LINE_AA)
@@ -649,9 +669,7 @@ def finish_rep(session, exercise_config, now):
     )
     if is_good:
         session["good_counter"] += 1
-        session["_want_good"] = True
     else:
-        session["_want_worst"] = True
         session["worst_cue"] = feedback_msg
     side = working_side_label(
         session.get("min_in_rep") or {}, exercise_config.get("side_check", "knee")
@@ -711,29 +729,48 @@ def update_rep_session(session, checks, exercise_config, now):
     count_on = exercise_config.get("count_on", "return_to_up")
     stage = session["stage"]
 
-    if count_on == "reach_up":
-        if stage == "down":
-            accumulate_extrema(session, checks)
-            if primary_value > primary_def["up_threshold"]:
+    candidate = stage
+    if stage == "down" and primary_value > primary_def["up_threshold"]:
+        candidate = "up"
+    elif stage == "up" and primary_value < primary_def["down_threshold"]:
+        candidate = "down"
+
+    if candidate != stage:
+        if session.get("stage_candidate") == candidate:
+            session["stage_candidate_count"] = session.get("stage_candidate_count", 0) + 1
+        else:
+            session["stage_candidate"] = candidate
+            session["stage_candidate_count"] = 1
+    else:
+        session["stage_candidate"] = None
+        session["stage_candidate_count"] = 0
+
+    if session.get("stage_candidate_count", 0) >= 3:
+        new_stage = session["stage_candidate"]
+        session["stage_candidate"] = None
+        session["stage_candidate_count"] = 0
+
+        if count_on == "reach_up":
+            if stage == "down" and new_stage == "up":
                 session["stage"] = "up"
                 finish_rep(session, exercise_config, now)
-        elif stage == "up" and primary_value < primary_def["down_threshold"]:
-            session["stage"] = "down"
-            session["down_t0"] = now
-            session["min_in_rep"] = {n: v for n, v in checks.items() if v is not None}
-            session["max_in_rep"] = dict(session["min_in_rep"])
-        return
+            elif stage == "up" and new_stage == "down":
+                session["stage"] = "down"
+                session["down_t0"] = now
+                session["min_in_rep"] = {n: v for n, v in checks.items() if v is not None}
+                session["max_in_rep"] = dict(session["min_in_rep"])
+        else:
+            if stage == "up" and new_stage == "down":
+                session["stage"] = "down"
+                session["down_t0"] = now
+                session["min_in_rep"] = {n: v for n, v in checks.items() if v is not None}
+                session["max_in_rep"] = dict(session["min_in_rep"])
+            elif stage == "down" and new_stage == "up":
+                session["stage"] = "up"
+                finish_rep(session, exercise_config, now)
 
-    if stage == "up" and primary_value < primary_def["down_threshold"]:
-        session["stage"] = "down"
-        session["down_t0"] = now
-        session["min_in_rep"] = {n: v for n, v in checks.items() if v is not None}
-        session["max_in_rep"] = dict(session["min_in_rep"])
-    elif stage == "down":
+    if session["stage"] == "down":
         accumulate_extrema(session, checks)
-        if primary_value > primary_def["up_threshold"]:
-            session["stage"] = "up"
-            finish_rep(session, exercise_config, now)
 
 
 def update_hold_session(session, checks, exercise_config, dt):
@@ -749,16 +786,33 @@ def update_hold_session(session, checks, exercise_config, dt):
 
     hold_direction = exercise_config.get("hold_direction", "above")
     prev_stage = session["stage"]
+    candidate = prev_stage
+    
     if hold_direction == "below":
         if prev_stage == "rest" and primary_value < primary_def["down_threshold"]:
-            session["stage"] = "hold"
+            candidate = "hold"
         elif prev_stage == "hold" and primary_value > primary_def["up_threshold"]:
-            session["stage"] = "rest"
+            candidate = "rest"
     else:
         if prev_stage == "rest" and primary_value > primary_def["up_threshold"]:
-            session["stage"] = "hold"
+            candidate = "hold"
         elif prev_stage == "hold" and primary_value < primary_def["down_threshold"]:
-            session["stage"] = "rest"
+            candidate = "rest"
+
+    if candidate != prev_stage:
+        if session.get("stage_candidate") == candidate:
+            session["stage_candidate_count"] = session.get("stage_candidate_count", 0) + 1
+        else:
+            session["stage_candidate"] = candidate
+            session["stage_candidate_count"] = 1
+    else:
+        session["stage_candidate"] = None
+        session["stage_candidate_count"] = 0
+
+    if session.get("stage_candidate_count", 0) >= 3:
+        session["stage"] = session["stage_candidate"]
+        session["stage_candidate"] = None
+        session["stage_candidate_count"] = 0
 
     feedback_msg, is_good = evaluate_live_feedback(exercise_config, checks)
     if feedback_msg != session.get("last_hold_msg"):
@@ -770,7 +824,6 @@ def update_hold_session(session, checks, exercise_config, dt):
         session["last_hold_good"] = is_good
         if not is_good:
             session["cue_counts"][feedback_msg] = session["cue_counts"].get(feedback_msg, 0) + 1
-            session["_want_worst"] = True
             session["worst_cue"] = feedback_msg
 
     session["feedback_msg"] = feedback_msg
@@ -873,27 +926,6 @@ def draw_banner(frame, title, subtitle=""):
         cv2.putText(frame, subtitle, (60, 265), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 1)
 
 
-def replay_clip(frames, title, subtitle="", window_name="Coach"):
-    if not frames:
-        return
-    for i in range(len(frames) * 2):
-        frame = frames[i % len(frames)].copy()
-        cv2.rectangle(frame, (0, 0), (frame.shape[1], 70), (0, 0, 0), -1)
-        cv2.putText(frame, title, (16, 32),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 165, 255), 2)
-        if subtitle:
-            cv2.putText(frame, str(subtitle)[:60], (16, 58),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, (230, 230, 230), 1)
-        cv2.imshow(window_name, frame)
-        if cv2.waitKey(45) & 0xFF == ord("q"):
-            break
-
-
-def replay_worst_clip(frames, cue="This rep", window_name="Coach"):
-    print(f"Replaying rough rep: {cue}")
-    replay_clip(frames, "This was the rough rep", cue, window_name)
-
-
 def session_record(session, exercise_config):
     cues = sorted(session.get("cue_counts", {}).items(), key=lambda item: item[1], reverse=True)
     return {
@@ -990,12 +1022,7 @@ def reset_session(exercise_config):
         "target_reps": 0,
         "target_hold": 0,
         "uncertain": False,
-        "frame_buf": deque(maxlen=50),
-        "worst_clip": None,
         "worst_cue": "",
-        "_want_worst": False,
-        "good_clip": None,
-        "_want_good": False,
         "side_stats": {"left": {"reps": 0, "good": 0}, "right": {"reps": 0, "good": 0}},
     }
 
@@ -1044,6 +1071,7 @@ def run_exercise(exercise_config, options=None):
     configure_voice(
         options.get("voice_mode") or "full",
         options.get("cue_gap_seconds") or 4.0,
+        options.get("voice_gender") or "Female",
     )
     auto_finish = options.get("auto_finish", False)
     wait_summary = options.get("wait_summary", True)
@@ -1058,6 +1086,8 @@ def run_exercise(exercise_config, options=None):
     landmarker = mp_vision.PoseLandmarker.create_from_options(mp_options)
 
     cap = cv2.VideoCapture(0)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     if not cap.isOpened():
         print("Could not open the camera.")
         landmarker.close()
@@ -1069,20 +1099,23 @@ def run_exercise(exercise_config, options=None):
     session["voice"] = voice
     session["target_reps"] = options.get("target_reps") or 0
     session["target_hold"] = options.get("target_hold") or 0
+    
+    demo_cap = None
+    video_path = os.path.join(PROJECT_ROOT, "videos", f"{cfg.get('id', '')}.mp4")
+    if os.path.exists(video_path):
+        demo_cap = cv2.VideoCapture(video_path)
+
     if teach_text:
         session["phase"] = "teach"
         session["teach_until"] = start_time + teach_seconds
         if voice:
             speak(teach_text)
     window_name = f"{cfg['display_name']} Coach"
+    cv2.namedWindow(window_name, cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)
+    cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     last_frame = None
     record = None
-    preview = load_clip(cfg.get("id") or "", "good")
-    if preview:
-        print("Showing your last good rep — match this.")
-        if voice:
-            speak("This is your last good rep. Match this.", force=True)
-        replay_clip(preview, "Your last good rep", "Match this quality", window_name)
+    # Clip preview removed for privacy
 
     try:
         while cap.isOpened():
@@ -1132,9 +1165,23 @@ def run_exercise(exercise_config, options=None):
                             cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
 
             if session["phase"] == "teach":
-                draw_banner(frame, cfg["display_name"], teach_text[:70])
-                if now >= session.get("teach_until", 0):
-                    session["phase"] = "setup"
+                video_finished = False
+                if demo_cap is not None and demo_cap.isOpened():
+                    ret, demo_frame = demo_cap.read()
+                    if not ret:
+                        video_finished = True
+                    else:
+                        demo_frame = cv2.resize(demo_frame, (w, h))
+                        frame = demo_frame
+                        
+                draw_banner(frame, cfg["display_name"], teach_text[:70] + " (SPACE to skip)")
+                
+                if demo_cap is not None and demo_cap.isOpened():
+                    if video_finished:
+                        session["phase"] = "setup"
+                else:
+                    if now >= session.get("teach_until", 0):
+                        session["phase"] = "setup"
 
             elif session["phase"] == "setup":
                 view = cfg.get("view", "side")
@@ -1212,14 +1259,6 @@ def run_exercise(exercise_config, options=None):
                     active_feedback = session["feedback_msg"]
 
             draw_hud(frame, session, checks, active_feedback, cfg)
-            thumb = cv2.resize(frame, (480, 270))
-            session["frame_buf"].append(thumb)
-            if session.get("_want_worst"):
-                session["worst_clip"] = [f.copy() for f in session["frame_buf"]]
-                session["_want_worst"] = False
-            if session.get("_want_good"):
-                session["good_clip"] = [f.copy() for f in session["frame_buf"]]
-                session["_want_good"] = False
             cv2.imshow(window_name, frame)
 
             key = cv2.waitKey(5) & 0xFF
@@ -1233,26 +1272,18 @@ def run_exercise(exercise_config, options=None):
                 session["voice"] = voice
                 session["target_reps"] = options.get("target_reps") or 0
                 session["target_hold"] = options.get("target_hold") or 0
-            if key == ord(" ") and session["phase"] == "rest":
-                session["phase"] = "active"
+            if key == ord(" "):
+                if session["phase"] == "rest":
+                    session["phase"] = "active"
+                elif session["phase"] == "teach":
+                    session["phase"] = "setup"
             if key == ord("c") and session["phase"] in ("setup", "calibrate", "teach"):
                 session["phase"] = "active"
                 session["stage"] = cfg.get("initial_stage", "up")
 
         record = session_record(session, cfg)
-        record["worst_clip"] = session.get("worst_clip")
         record["worst_cue"] = session.get("worst_cue") or ""
-        if session.get("good_clip"):
-            path = save_clip(session["good_clip"], cfg.get("id") or "exercise", "good")
-            if path:
-                record["good_clip_path"] = path
         print_summary(record)
-        if session.get("worst_clip") and options.get("replay_worst", True):
-            replay_worst_clip(
-                session["worst_clip"],
-                session.get("worst_cue") or "This rep",
-                window_name,
-            )
         if save_history:
             try:
                 path = append_session(record)
@@ -1266,6 +1297,8 @@ def run_exercise(exercise_config, options=None):
             cv2.waitKey(0)
 
     finally:
+        if demo_cap is not None:
+            demo_cap.release()
         if session.get("ended_reason") == "quit":
             stop_voice()
         landmarker.close()

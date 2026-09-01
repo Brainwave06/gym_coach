@@ -88,68 +88,70 @@ COOLDOWN = [
 ]
 
 
-def _rotate(point, origin, degrees):
+def _rotate(point, origin, degrees, z_offset=0):
     rad = math.radians(degrees)
     px, py = point[0] - origin[0], point[1] - origin[1]
     return (
         int(origin[0] + px * math.cos(rad) - py * math.sin(rad)),
         int(origin[1] + px * math.sin(rad) + py * math.cos(rad)),
+        origin[2] + z_offset
     )
 
 
 def _add(a, b):
-    return (int(a[0] + b[0]), int(a[1] + b[1]))
+    # b is (dx, dy, dz)
+    return (int(a[0] + b[0]), int(a[1] + b[1]), int(a[2] + b[2]))
 
 
 def _stick_pose(cx, cy, kind, t):
-    neck = (cx, cy - 70)
-    head = (cx, cy - 108)
-    l_sh, r_sh = (cx - 42, cy - 58), (cx + 42, cy - 58)
-    mid_hip = (cx, cy + 28)
-    l_hip, r_hip = (cx - 22, cy + 32), (cx + 22, cy + 32)
+    neck = (cx, cy - 70, 0)
+    head = (cx, cy - 108, 0)
+    l_sh, r_sh = (cx - 42, cy - 58, 0), (cx + 42, cy - 58, 0)
+    mid_hip = (cx, cy + 28, 0)
+    l_hip, r_hip = (cx - 22, cy + 32, 0), (cx + 22, cy + 32, 0)
 
     if kind == "march":
         swing = math.sin(t * 7.0)
-        l_kn = _add(l_hip, (8 * swing, 62 - 28 * max(swing, 0)))
-        r_kn = _add(r_hip, (-8 * swing, 62 - 28 * max(-swing, 0)))
-        l_ank = _add(l_kn, (6 * swing, 58 + 10 * min(swing, 0)))
-        r_ank = _add(r_kn, (-6 * swing, 58 + 10 * min(-swing, 0)))
-        l_el = _add(l_sh, (10, 48 + 22 * -swing))
-        r_el = _add(r_sh, (-10, 48 + 22 * swing))
-        l_wr = _add(l_el, (8, 44 + 18 * -swing))
-        r_wr = _add(r_el, (-8, 44 + 18 * swing))
+        l_kn = _add(l_hip, (8 * swing, 62 - 28 * max(swing, 0), -40 * max(swing, 0)))
+        r_kn = _add(r_hip, (-8 * swing, 62 - 28 * max(-swing, 0), -40 * max(-swing, 0)))
+        l_ank = _add(l_kn, (6 * swing, 58 + 10 * min(swing, 0), 15 * swing))
+        r_ank = _add(r_kn, (-6 * swing, 58 + 10 * min(-swing, 0), -15 * swing))
+        l_el = _add(l_sh, (10, 48 + 22 * -swing, -30 * -swing))
+        r_el = _add(r_sh, (-10, 48 + 22 * swing, -30 * swing))
+        l_wr = _add(l_el, (8, 44 + 18 * -swing, -25 * -swing))
+        r_wr = _add(r_el, (-8, 44 + 18 * swing, -25 * swing))
     elif kind == "circles":
         ang = (t * 140) % 360
-        l_el = _rotate((l_sh[0], l_sh[1] + 55), l_sh, ang)
-        l_wr = _rotate((l_sh[0], l_sh[1] + 105), l_sh, ang)
-        r_el = _rotate((r_sh[0], r_sh[1] + 55), r_sh, ang + 180)
-        r_wr = _rotate((r_sh[0], r_sh[1] + 105), r_sh, ang + 180)
-        l_kn, r_kn = _add(l_hip, (0, 70)), _add(r_hip, (0, 70))
-        l_ank, r_ank = _add(l_kn, (0, 62)), _add(r_kn, (0, 62))
+        l_el = _rotate((l_sh[0], l_sh[1] + 55), l_sh, ang, -20 * math.cos(math.radians(ang)))
+        l_wr = _rotate((l_sh[0], l_sh[1] + 105), l_sh, ang, -40 * math.cos(math.radians(ang)))
+        r_el = _rotate((r_sh[0], r_sh[1] + 55), r_sh, ang + 180, -20 * math.cos(math.radians(ang + 180)))
+        r_wr = _rotate((r_sh[0], r_sh[1] + 105), r_sh, ang + 180, -40 * math.cos(math.radians(ang + 180)))
+        l_kn, r_kn = _add(l_hip, (0, 70, 0)), _add(r_hip, (0, 70, 0))
+        l_ank, r_ank = _add(l_kn, (0, 62, 0)), _add(r_kn, (0, 62, 0))
     elif kind == "breathe":
         lift = 6 * math.sin(t * 1.4)
-        neck = (cx, cy - 70 + int(lift * 0.3))
-        head = (cx, cy - 108 + int(lift * 0.3))
-        l_sh, r_sh = (cx - 42, cy - 58 + int(lift)), (cx + 42, cy - 58 + int(lift))
-        l_el, r_el = _add(l_sh, (-6, 70)), _add(r_sh, (6, 70))
-        l_wr, r_wr = _add(l_el, (8, 8)), _add(r_el, (0, 8))
-        l_kn, r_kn = _add(l_hip, (0, 70)), _add(r_hip, (0, 70))
-        l_ank, r_ank = _add(l_kn, (0, 62)), _add(r_kn, (0, 62))
+        neck = (cx, cy - 70 + int(lift * 0.3), 0)
+        head = (cx, cy - 108 + int(lift * 0.3), 0)
+        l_sh, r_sh = (cx - 42, cy - 58 + int(lift), 0), (cx + 42, cy - 58 + int(lift), 0)
+        l_el, r_el = _add(l_sh, (-6, 70, 0)), _add(r_sh, (6, 70, 0))
+        l_wr, r_wr = _add(l_el, (8, 8, 0)), _add(r_el, (0, 8, 0))
+        l_kn, r_kn = _add(l_hip, (0, 70, 0)), _add(r_hip, (0, 70, 0))
+        l_ank, r_ank = _add(l_kn, (0, 62, 0)), _add(r_kn, (0, 62, 0))
     else:
         phase = (math.sin(t * 2.2) + 1) / 2
         side = 1 if int(t * 0.35) % 2 == 0 else -1
         planted_hip = r_hip if side > 0 else l_hip
         lift_hip = l_hip if side > 0 else r_hip
-        planted_kn = _add(planted_hip, (0, 70))
-        planted_ank = _add(planted_kn, (0, 62))
-        lift_kn = _add(lift_hip, (side * 18 * phase, 70 - 50 * phase))
-        lift_ank = _add(lift_kn, (side * 8, 40 * (1 - phase)))
+        planted_kn = _add(planted_hip, (0, 70, 0))
+        planted_ank = _add(planted_kn, (0, 62, 0))
+        lift_kn = _add(lift_hip, (side * 18 * phase, 70 - 50 * phase, -40 * phase))
+        lift_ank = _add(lift_kn, (side * 8, 40 * (1 - phase), 20 * phase))
         if side > 0:
             l_kn, l_ank, r_kn, r_ank = lift_kn, lift_ank, planted_kn, planted_ank
         else:
             r_kn, r_ank, l_kn, l_ank = lift_kn, lift_ank, planted_kn, planted_ank
-        l_el, r_el = _add(l_sh, (-8, 70)), _add(r_sh, (8, 70))
-        l_wr, r_wr = _add(l_el, (0, 8)), _add(r_el, (0, 8))
+        l_el, r_el = _add(l_sh, (-8, 70, 0)), _add(r_sh, (8, 70, 0))
+        l_wr, r_wr = _add(l_el, (0, 8, 0)), _add(r_el, (0, 8, 0))
 
     return {
         "head": head, "neck": neck, "l_sh": l_sh, "r_sh": r_sh,
@@ -166,11 +168,35 @@ def _draw_stick(frame, pose):
         ("neck", "mid"), ("mid", "l_hip"), ("mid", "r_hip"),
         ("l_hip", "l_kn"), ("l_kn", "l_ank"), ("r_hip", "r_kn"), ("r_kn", "r_ank"),
     ]
+    
+    # Sort bones by average Z depth so closer bones are drawn on top
+    bones_with_depth = []
     for a, b in bones:
-        cv2.line(frame, pose[a], pose[b], (80, 220, 255), 4, cv2.LINE_AA)
-    cv2.circle(frame, pose["head"], 18, (80, 220, 255), 3, cv2.LINE_AA)
-    for key in ("l_wr", "r_wr", "l_ank", "r_ank", "mid"):
-        cv2.circle(frame, pose[key], 6, (0, 255, 180), -1, cv2.LINE_AA)
+        avg_z = (pose[a][2] + pose[b][2]) / 2.0
+        bones_with_depth.append((avg_z, a, b))
+    
+    bones_with_depth.sort(key=lambda item: item[0], reverse=True) # Further away (positive z) drawn first
+    
+    for z, a, b in bones_with_depth:
+        # Scale thickness and brightness by z
+        scale = max(0.5, min(1.8, 1.0 - (z / 100.0)))
+        thickness = max(2, int(6 * scale))
+        shade = max(80, min(255, int(200 * scale)))
+        color = (30, shade, shade + 35) # Cyan-ish 3D color
+        cv2.line(frame, pose[a][:2], pose[b][:2], color, thickness, cv2.LINE_AA)
+        
+    # Draw head
+    head_z = pose["head"][2]
+    head_scale = max(0.5, min(1.8, 1.0 - (head_z / 100.0)))
+    head_shade = max(80, min(255, int(200 * head_scale)))
+    cv2.circle(frame, pose["head"][:2], int(18 * head_scale), (30, head_shade, head_shade + 35), int(3 * head_scale) or 1, cv2.LINE_AA)
+    
+    # Draw key joints
+    for key in ("l_wr", "r_wr", "l_ank", "r_ank", "mid", "l_kn", "r_kn"):
+        z = pose[key][2]
+        scale = max(0.5, min(1.8, 1.0 - (z / 100.0)))
+        shade = max(80, min(255, int(255 * scale)))
+        cv2.circle(frame, pose[key][:2], int(8 * scale), (0, shade, int(shade * 0.7)), -1, cv2.LINE_AA)
 
 
 def _progress_bar(frame, x, y, w, h, frac, color):
@@ -330,7 +356,7 @@ def _run_follow_along(drills, title, total_hint):
                     result = landmarker.detect_for_video(mp_image, ts)
                     if result.pose_landmarks:
                         landmarks = result.pose_landmarks[0]
-                        draw_landmarks(cam_frame, landmarks)
+                        draw_landmarks(cam_frame, landmarks, {"important_joints": ["shoulder", "elbow", "wrist", "hip", "knee", "ankle"]})
 
             _update_motion(motion, landmarks)
             live = _warmup_feedback(drill["kind"], landmarks, motion)

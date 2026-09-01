@@ -7,7 +7,8 @@ EXERCISE_CONFIG = {
     "set_size": 10,
     "rest_seconds": 20,
     "calibrate_seconds": 2.5,
-    "setup_hint": "Face the camera - full body, feet visible",
+    "setup_hint": "Face the camera directly. For best 3D measurement, stand at a slight angle.",
+    "important_joints": ["knee", "ankle", "heel", "foot_index"],
     "calibrate_hint": "Stand tall with feet about shoulder width",
     "not_visible_message": "Legs not clearly visible",
     "landmarks": {

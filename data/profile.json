@@ -7,19 +7,29 @@
   ],
   "equipment": "floor",
   "time_budget_min": 25,
-  "voice_mode": "full",
-  "cue_gap_seconds": 4.0,
+  "voice_mode": "quiet",
+  "cue_gap_seconds": 8.0,
   "progression": {
     "box_squat": {
       "variant": "box_squat",
       "sets": 1,
       "reps": 6,
       "hold": 25,
-      "last_feel": "skip",
-      "last_quality": 0.0,
-      "last_ended": "form_fade"
+      "last_feel": "easy",
+      "last_quality": 0.667,
+      "last_ended": "target"
+    },
+    "wall_sit": {
+      "variant": "wall_sit",
+      "sets": 2,
+      "reps": 9,
+      "hold": 35,
+      "last_feel": "easy",
+      "last_quality": 0.753,
+      "last_ended": "target"
     }
   },
   "camera_setup": null,
-  "user_id": "usr_2920acc752"
+  "user_id": "usr_2920acc752",
+  "voice_gender": "Female"
 }

@@ -7,7 +7,8 @@ EXERCISE_CONFIG = {
     "set_size": 8,
     "rest_seconds": 20,
     "calibrate_seconds": 2.5,
-    "setup_hint": "Turn sideways - you will step into a lunge",
+    "setup_hint": "Turn sideways. For best 3D measurement, angle slightly (45-deg) so both legs are visible.",
+    "important_joints": ["knee", "ankle", "foot_index"],
     "calibrate_hint": "Stand tall, then step and drop the back knee",
     "not_visible_message": "Step sideways to the camera so both legs are visible",
     "landmarks": {

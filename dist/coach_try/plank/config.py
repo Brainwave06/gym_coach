@@ -5,7 +5,8 @@ EXERCISE_CONFIG = {
     "initial_stage": "rest",
     "hold_direction": "above",
     "calibrate_seconds": 2.5,
-    "setup_hint": "Turn sideways - full body from head to heels",
+    "setup_hint": "Turn sideways. For best 3D measurement, angle slightly (45-deg).",
+    "important_joints": ["shoulder", "elbow", "hip"],
     "calibrate_hint": "Get into a strong plank and hold still",
     "not_visible_message": "Body not clearly visible - turn sideways to the camera",
     "landmarks": {

@@ -5,7 +5,8 @@ EXERCISE_CONFIG = {
     "initial_stage": "rest",
     "hold_direction": "below",
     "calibrate_seconds": 2.5,
-    "setup_hint": "Turn sideways, back against a wall",
+    "setup_hint": "Turn sideways. For best 3D measurement, angle slightly (45-deg).",
+    "important_joints": ["hip", "knee", "ankle"],
     "calibrate_hint": "Slide down until thighs are close to parallel",
     "not_visible_message": "Stand sideways so hips and knees are visible",
     "landmarks": {
@@ -16,14 +17,14 @@ EXERCISE_CONFIG = {
         "knee": {
             "type": "angle",
             "points": ("hip", "knee", "ankle"),
-            "down_threshold": 115,
+            "down_threshold": 100,
             "up_threshold": 145,
             "direction": "below",
         },
         "torso_lean": {
             "type": "vertical_angle",
             "points": ("shoulder", "hip"),
-            "down_threshold": 28,
+            "down_threshold": 20,
             "up_threshold": None,
             "direction": "above",
         },
@@ -34,13 +35,21 @@ EXERCISE_CONFIG = {
             "up_threshold": None,
             "direction": "above",
         },
+        "knee_valgus": {
+            "type": "horizontal_ratio",
+            "numerator_joint": "knee",
+            "denominator_joint": "ankle",
+            "down_threshold": 0.7,
+            "up_threshold": None,
+            "direction": "below",
+        },
     },
     "primary_check": "knee",
     "depth_checks": ["knee"],
-    "fault_checks": ["torso_lean", "knee_asymmetry"],
+    "fault_checks": ["torso_lean", "knee_asymmetry", "knee_valgus"],
     "feedback_rules": [
         {
-            "require": {"knee": True, "torso_lean": False, "knee_asymmetry": False},
+            "require": {"knee": True, "torso_lean": False, "knee_asymmetry": False, "knee_valgus": False},
             "message": "Strong wall sit - thighs near parallel",
             "counts_as_good": True,
         },
@@ -52,6 +61,11 @@ EXERCISE_CONFIG = {
         {
             "require": {"knee_asymmetry": True},
             "message": "Uneven - {side} leg is taking more load",
+            "counts_as_good": False,
+        },
+        {
+            "require": {"knee_valgus": True},
+            "message": "Knees caving in - push them out to track over your toes",
             "counts_as_good": False,
         },
         {

@@ -7,7 +7,8 @@ EXERCISE_CONFIG = {
     "set_size": 10,
     "rest_seconds": 20,
     "calibrate_seconds": 2.5,
-    "setup_hint": "Stand sideways, dumbbell in the camera-side hand",
+    "setup_hint": "Stand sideways. For best 3D measurement, angle slightly (45-deg).",
+    "important_joints": ["shoulder", "elbow", "wrist"],
     "calibrate_hint": "Arm hanging straight at your side",
     "not_visible_message": "Stand sideways so the working arm is visible",
     "landmarks": {

@@ -7,7 +7,8 @@ EXERCISE_CONFIG = {
     "set_size": 8,
     "rest_seconds": 20,
     "calibrate_seconds": 2.5,
-    "setup_hint": "Turn sideways - full body in a high plank",
+    "setup_hint": "Turn sideways. For best 3D measurement, angle slightly (45-deg) so both arms are visible.",
+    "important_joints": ["shoulder", "elbow", "wrist"],
     "calibrate_hint": "Hold the top of a push-up with arms straight",
     "not_visible_message": "Body not clearly visible - turn sideways to the camera",
     "landmarks": {

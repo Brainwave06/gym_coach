@@ -5,7 +5,8 @@ EXERCISE_CONFIG = {
     "initial_stage": "rest",
     "hold_direction": "below",
     "calibrate_seconds": 2.5,
-    "setup_hint": "Turn sideways, back against a wall",
+    "setup_hint": "Turn sideways. For best 3D measurement, angle slightly (45-deg).",
+    "important_joints": ["hip", "knee", "ankle"],
     "calibrate_hint": "Slide down until thighs are close to parallel",
     "not_visible_message": "Stand sideways so hips and knees are visible",
     "landmarks": {

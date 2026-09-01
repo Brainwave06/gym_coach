@@ -6,7 +6,8 @@ EXERCISE_CONFIG = {
     "hold_direction": "above",
     "side_check": "knee",
     "calibrate_seconds": 2.5,
-    "setup_hint": "Lie on your back, sideways to the camera",
+    "setup_hint": "Lie on your back, sideways to the camera. For best 3D measurement, angle slightly.",
+    "important_joints": ["shoulder", "elbow", "wrist", "hip", "knee", "ankle"],
     "calibrate_hint": "Extend one leg and the opposite arm without arching",
     "not_visible_message": "Lie on your back, camera from the side",
     "landmarks": {

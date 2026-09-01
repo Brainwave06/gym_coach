@@ -71,6 +71,10 @@ def run_onboarding():
         ("2", "Quiet — fewer cues"),
         ("3", "Text only — no speech"),
     ])
+    voice_gender = _pick("Voice model?", [
+        ("1", "Female"),
+        ("2", "Male"),
+    ])
     profile = {
         "name": name,
         "goal": {"1": "strength", "2": "fat_loss", "3": "health"}[goal],
@@ -79,6 +83,7 @@ def run_onboarding():
         "equipment": "dumbbells" if equipment == "2" else "floor",
         "time_budget_min": {"1": 15, "2": 25, "3": 40}[time_budget],
         "voice_mode": {"1": "full", "2": "quiet", "3": "text"}[voice_mode],
+        "voice_gender": {"1": "Female", "2": "Male"}[voice_gender],
         "cue_gap_seconds": 4.0,
         "progression": {},
         "camera_setup": None,
@@ -91,6 +96,7 @@ def run_onboarding():
 def ensure_defaults(profile):
     profile.setdefault("time_budget_min", 25)
     profile.setdefault("voice_mode", "full")
+    profile.setdefault("voice_gender", "Female")
     profile.setdefault("cue_gap_seconds", 4.0)
     profile.setdefault("progression", {})
     profile.setdefault("camera_setup", None)
@@ -122,8 +128,13 @@ def edit_session_prefs(profile):
         ("2", "Quiet — fewer cues"),
         ("3", "Text only"),
     ])
+    voice_gender = _pick("Voice model?", [
+        ("1", "Female"),
+        ("2", "Male"),
+    ])
     profile["time_budget_min"] = {"1": 15, "2": 25, "3": 40}[time_budget]
     profile["voice_mode"] = {"1": "full", "2": "quiet", "3": "text"}[voice_mode]
+    profile["voice_gender"] = {"1": "Female", "2": "Male"}[voice_gender]
     profile["cue_gap_seconds"] = 8.0 if profile["voice_mode"] == "quiet" else 4.0
     save_profile(profile)
     print("Saved.")

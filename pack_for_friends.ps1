@@ -23,7 +23,8 @@ $IncludeDirs = @(
     "bird_dog",
     "dead_bug",
     "biceps_curl",
-    "ml"
+    "ml",
+    "videos"
 )
 $IncludeFiles = @(
     "main.py",

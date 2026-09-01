@@ -8,7 +8,8 @@ EXERCISE_CONFIG = {
     "set_size": 10,
     "rest_seconds": 20,
     "calibrate_seconds": 2.5,
-    "setup_hint": "Lie on your back, sideways to the camera",
+    "setup_hint": "Lie on your back, sideways to the camera. For best 3D measurement, angle slightly.",
+    "important_joints": ["shoulder", "hip", "knee"],
     "calibrate_hint": "Hips down, knees bent - then you will squeeze up",
     "not_visible_message": "Lie on your side-on to the camera so hips and knees are visible",
     "landmarks": {

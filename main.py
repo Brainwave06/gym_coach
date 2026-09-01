@@ -75,13 +75,14 @@ def home_menu(profile):
 
 
 def practice(name, profile):
-    configure_voice(profile.get("voice_mode") or "full", profile.get("cue_gap_seconds") or 4.0)
+    configure_voice(profile.get("voice_mode") or "full", profile.get("cue_gap_seconds") or 4.0, profile.get("voice_gender") or "Female")
     run_exercise(
         get_config(name),
         options={
             "voice": True,
             "prefer_full": True,
             "voice_mode": profile.get("voice_mode") or "full",
+            "voice_gender": profile.get("voice_gender") or "Female",
             "cue_gap_seconds": profile.get("cue_gap_seconds") or 4.0,
         },
     )
@@ -106,7 +107,7 @@ def main(argv=None):
         profile = run_onboarding()
     else:
         profile = load_or_onboard()
-    configure_voice(profile.get("voice_mode") or "full", profile.get("cue_gap_seconds") or 4.0)
+    configure_voice(profile.get("voice_mode") or "full", profile.get("cue_gap_seconds") or 4.0, profile.get("voice_gender") or "Female")
 
     if args.dataset:
         from common.user_dataset import print_dataset_summary
@@ -140,7 +141,7 @@ def main(argv=None):
             run_camera_setup(profile)
         elif choice in ("6", "voice", "time"):
             profile = edit_session_prefs(profile)
-            configure_voice(profile.get("voice_mode") or "full", profile.get("cue_gap_seconds") or 4.0)
+            configure_voice(profile.get("voice_mode") or "full", profile.get("cue_gap_seconds") or 4.0, profile.get("voice_gender") or "Female")
         elif choice in ("7", "dataset"):
             from common.user_dataset import print_dataset_summary
             print_dataset_summary()

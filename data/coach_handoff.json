@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-30T14:54:06",
+  "updated_at": "2026-09-01T19:24:25",
   "source": "desktop_cv_coach",
   "athlete": {
     "name": "Abdelrahman Atef",
@@ -10,7 +10,7 @@
     ],
     "equipment": "floor",
     "time_budget_min": 25,
-    "voice_mode": "full"
+    "voice_mode": "quiet"
   },
   "progression": {
     "box_squat": {
@@ -18,57 +18,70 @@
       "sets": 1,
       "reps": 6,
       "hold": 25,
-      "last_feel": "skip",
-      "last_quality": 0.0,
-      "last_ended": "form_fade"
+      "last_feel": "easy",
+      "last_quality": 0.667,
+      "last_ended": "target"
+    },
+    "wall_sit": {
+      "variant": "wall_sit",
+      "sets": 2,
+      "reps": 9,
+      "hold": 35,
+      "last_feel": "easy",
+      "last_quality": 0.753,
+      "last_ended": "target"
     }
   },
   "camera_setup": null,
   "weekly": {
     "days": 7,
-    "sessions": 14,
-    "workouts": 9,
-    "reps": 94,
-    "good_reps": 22,
-    "quality": 0.23404255319148937,
-    "hold_time": 0.0,
+    "sessions": 50,
+    "workouts": 13,
+    "reps": 128,
+    "good_reps": 41,
+    "quality": 0.3203125,
+    "hold_time": 118.6,
     "streak": 1,
     "top_cues": [
       {
+        "cue": "Reach the opposite arm forward",
+        "count": 32
+      },
+      {
         "cue": "Front knee racing past toes - take a longer step",
-        "count": 18
+        "count": 20
       },
       {
         "cue": "Knees caving in - push them out",
+        "count": 13
+      },
+      {
+        "cue": "Good depth!",
         "count": 12
       },
       {
-        "cue": "Not deep enough - drop the back knee",
-        "count": 10
-      },
-      {
-        "cue": "Heels lifting - keep them flat",
-        "count": 8
-      },
-      {
-        "cue": "Chest collapsing - keep your torso more upright",
-        "count": 7
+        "cue": "Knees bending - straighten your legs",
+        "count": 11
       }
     ],
     "skipped_note": "",
     "imbalance": {
       "weak_side": null,
-      "note": "Not enough left/right reps yet."
+      "left_quality": 0.36,
+      "right_quality": 0.33,
+      "note": "Left and right are roughly even."
     }
   },
   "imbalance": {
     "weak_side": null,
-    "note": "Not enough left/right reps yet."
+    "left_quality": 0.36,
+    "right_quality": 0.33,
+    "note": "Left and right are roughly even."
   },
   "notes_for_chatbot": "Computer vision owns form, reps, and live cues. Use this snapshot to suggest diet or a complementary plan. Do not override a pain flag or a form_fade stop.",
   "last_session": {
     "kind": "workout",
-    "plan": "Week 3 Day 3",
+    "plan": "Week 4 Day 1",
     "aborted": true
   }
 }
