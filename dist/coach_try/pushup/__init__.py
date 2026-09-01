@@ -1,1 +1,0 @@
-# Push-up exercise package.

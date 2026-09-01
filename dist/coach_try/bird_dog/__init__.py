@@ -1,1 +1,0 @@
-# Bird-dog exercise package.

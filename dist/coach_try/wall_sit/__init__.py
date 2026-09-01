@@ -1,1 +1,0 @@
-# Wall sit exercise package.

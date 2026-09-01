@@ -1,1 +1,0 @@
-# Biceps curl exercise package.

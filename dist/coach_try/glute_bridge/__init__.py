@@ -1,1 +1,0 @@
-# Glute bridge exercise package.

@@ -1,1 +1,0 @@
-# Dead bug exercise package.
