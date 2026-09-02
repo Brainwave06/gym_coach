@@ -1,0 +1,4 @@
+fastapi
+uvicorn[standard]
+pydantic
+# Add database drivers (e.g., psycopg2-binary, motor) or LLM libs (openai) below as needed
