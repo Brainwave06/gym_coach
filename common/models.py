@@ -1,8 +1,9 @@
 import os
 import urllib.request
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODELS_DIR = os.path.join(PROJECT_ROOT, "models")
+from common.paths import ASSET_ROOT
+
+MODELS_DIR = os.path.join(ASSET_ROOT, "models")
 
 FULL_URL = (
     "https://storage.googleapis.com/mediapipe-models/pose_landmarker/"
@@ -20,7 +21,7 @@ def _candidates():
         "pose_landmarker_heavy.task",
         "pose_landmarker_lite.task",
     )
-    roots = (MODELS_DIR, PROJECT_ROOT, os.path.join(PROJECT_ROOT, "squat"), os.getcwd())
+    roots = (MODELS_DIR, ASSET_ROOT, os.path.join(ASSET_ROOT, "squat"), os.getcwd())
     paths = []
     for root in roots:
         for name in names:

@@ -1,8 +1,8 @@
 import json
 import os
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PROFILE_PATH = os.path.join(PROJECT_ROOT, "data", "profile.json")
+from common.paths import DATA_ROOT
+PROFILE_PATH = os.path.join(DATA_ROOT, "data", "profile.json")
 
 INJURY_BLOCKS = {
     "knees": {"lunge", "wall_sit"},

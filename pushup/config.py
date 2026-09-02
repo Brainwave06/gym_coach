@@ -25,8 +25,14 @@ EXERCISE_CONFIG = {
         "elbow": {
             "type": "angle",
             "points": ("shoulder", "elbow", "wrist"),
-            "down_threshold": 90,
+            "down_threshold": 130,
             "up_threshold": 160,
+        },
+        "elbow_depth": {
+            "type": "angle",
+            "points": ("shoulder", "elbow", "wrist"),
+            "down_threshold": 90,
+            "up_threshold": None,
         },
         "body_line": {
             "type": "angle",
@@ -72,12 +78,12 @@ EXERCISE_CONFIG = {
         },
     },
     "primary_check": "elbow",
-    "depth_checks": ["elbow"],
+    "depth_checks": ["elbow_depth"],
     "fault_checks": ["hip_sag", "hip_pike", "knee", "body_line", "elbow_flare", "head_drop"],
     "feedback_rules": [
         {
             "require": {
-                "elbow": True,
+                "elbow_depth": True,
                 "hip_sag": False, "hip_pike": False, "knee": False,
                 "body_line": False, "elbow_flare": False, "head_drop": False,
             },
@@ -115,7 +121,7 @@ EXERCISE_CONFIG = {
             "counts_as_good": False,
         },
         {
-            "require": {"elbow": False},
+            "require": {"elbow_depth": False},
             "message": "Rep {count}: Not deep enough - lower your chest",
             "counts_as_good": False,
         },

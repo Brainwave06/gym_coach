@@ -2,8 +2,8 @@ import json
 import os
 from datetime import datetime, timedelta
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-HISTORY_PATH = os.path.join(PROJECT_ROOT, "data", "history.jsonl")
+from common.paths import DATA_ROOT
+HISTORY_PATH = os.path.join(DATA_ROOT, "data", "history.jsonl")
 
 
 def append_session(record):

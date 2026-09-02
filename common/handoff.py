@@ -7,8 +7,8 @@ from datetime import datetime
 from common.history import load_history, side_imbalance, weekly_report
 from common.profile import save_profile
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-HANDOFF_PATH = os.path.join(PROJECT_ROOT, "data", "coach_handoff.json")
+from common.paths import DATA_ROOT
+HANDOFF_PATH = os.path.join(DATA_ROOT, "data", "coach_handoff.json")
 
 
 def write_handoff(profile, extra=None):

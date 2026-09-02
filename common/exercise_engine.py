@@ -18,7 +18,7 @@ from common.models import resolve_model_path
 from common.voice import configure_voice, speak, spoken_from_message, stop_voice
 from common.voice import configure_voice, speak, spoken_from_message, stop_voice
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from common.paths import ASSET_ROOT
 
 VISIBILITY_THRESHOLD = 0.5
 UNCERTAIN_THRESHOLD = 0.55
@@ -75,18 +75,19 @@ def landmark_confidence(lm):
 
 
 def smooth_pose_landmarks(landmarks, ema_state, alpha=POSE_SMOOTH_ALPHA):
-    pts = ema_state.setdefault("xy", None)
+    pts = ema_state.setdefault("xyz", None)
     if pts is None or len(pts) != len(landmarks):
-        ema_state["xy"] = [[lm.x, lm.y] for lm in landmarks]
+        ema_state["xyz"] = [[lm.x, lm.y, lm.z] for lm in landmarks]
     else:
         for i, lm in enumerate(landmarks):
             pts[i][0] = alpha * lm.x + (1.0 - alpha) * pts[i][0]
             pts[i][1] = alpha * lm.y + (1.0 - alpha) * pts[i][1]
+            pts[i][2] = alpha * lm.z + (1.0 - alpha) * pts[i][2]
 
     smoothed = []
     for i, lm in enumerate(landmarks):
-        x, y = ema_state["xy"][i]
-        smoothed.append(_SmoothedLandmark(x, y, lm.z, lm.visibility, lm.presence))
+        x, y, z = ema_state["xyz"][i]
+        smoothed.append(_SmoothedLandmark(x, y, z, getattr(lm, "visibility", 1.0), getattr(lm, "presence", 1.0)))
     return smoothed
 
 
@@ -1037,6 +1038,16 @@ def apply_calibration(cfg, baselines):
     if mode == "hold" and cfg.get("hold_direction", "above") == "above":
         primary_def["up_threshold"] = max(base - 10, primary_def.get("up_threshold") or 0)
         primary_def["down_threshold"] = max(base - 20, (primary_def.get("down_threshold") or 0) - 5)
+    elif mode == "reps":
+        # Dynamic calibration for reps: adjust the 'up' threshold based on resting posture
+        # e.g., if their standing knee angle is 170 instead of 180, adjust thresholds down
+        if "up_threshold" in primary_def:
+            offset = base - primary_def["up_threshold"]
+            # Only adjust if the user's natural resting posture is significantly different
+            if abs(offset) > 10:
+                primary_def["up_threshold"] = base
+                if "down_threshold" in primary_def:
+                    primary_def["down_threshold"] += offset / 2 # scale down threshold slightly
     elif mode == "hold":
         primary_def["down_threshold"] = min(base + 8, primary_def.get("down_threshold") or base)
         primary_def["up_threshold"] = max(base + 25, primary_def.get("up_threshold") or base)
@@ -1101,7 +1112,7 @@ def run_exercise(exercise_config, options=None):
     session["target_hold"] = options.get("target_hold") or 0
     
     demo_cap = None
-    video_path = os.path.join(PROJECT_ROOT, "videos", f"{cfg.get('id', '')}.mp4")
+    video_path = os.path.join(ASSET_ROOT, "videos", f"{cfg.get('id', '')}.mp4")
     if os.path.exists(video_path):
         demo_cap = cv2.VideoCapture(video_path)
 

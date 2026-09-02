@@ -21,8 +21,8 @@ from datetime import datetime, timedelta
 from common.history import current_streak, load_history, side_imbalance, weekly_report
 from common.profile import load_profile, save_profile
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATASET_DIR = os.path.join(PROJECT_ROOT, "data", "dataset")
+from common.paths import DATA_ROOT
+DATASET_DIR = os.path.join(DATA_ROOT, "data", "dataset")
 SCHEMA_VERSION = "1.0.0"
 
 
@@ -366,7 +366,7 @@ def export_dataset(include_demo=True):
     profile = load_profile() or {"name": "Athlete"}
     if not profile.get("user_id"):
         profile["user_id"] = make_user_id(profile.get("name"), salt="live")
-        if os.path.exists(os.path.join(PROJECT_ROOT, "data", "profile.json")):
+        if os.path.exists(os.path.join(DATA_ROOT, "data", "profile.json")):
             save_profile(profile)
 
     history = load_history()
