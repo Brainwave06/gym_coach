@@ -12,7 +12,6 @@
 From the project folder, with the existing venv:
 
 ```powershell
-cd D:\claude_code
 .\venv\Scripts\python.exe main.py
 ```
 
