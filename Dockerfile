@@ -6,23 +6,26 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-# Install Linux system dependencies required for OpenCV, MediaPipe, and PyODBC
+# Install Linux system dependencies for Debian 12 (Bookworm)
+# Note: libgl1-mesa-glx is obsolete in Debian 12 and replaced by libgl1
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
     libxrender-dev \
     unixodbc-dev \
     curl \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python requirements
+# Upgrade pip and install Python requirements
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Copy project files
+# Copy application source code (excluding files in .dockerignore)
 COPY . .
 
 # Expose backend port
