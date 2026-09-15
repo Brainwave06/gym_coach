@@ -15,6 +15,22 @@ from common.profile import load_profile
 from common.handoff import write_handoff
 from common.catalog import get_config
 from common.models import resolve_model_path
+from common.exercise_engine import (
+    apply_baselines,
+    compute_all_checks,
+    smooth_checks,
+    smooth_pose_landmarks,
+    status_from_values,
+    update_hold_session,
+    update_rep_session,
+)
+from mediapipe.tasks.python import BaseOptions
+from mediapipe.tasks.python.vision import (
+    PoseLandmarker,
+    PoseLandmarkerOptions,
+    RunningMode as VisionRunningMode,
+)
+import time
 
 from gym_ai import arun_pipeline, generate_personalized_plan
 
@@ -560,8 +576,8 @@ def get_workout_history_endpoint(user_id: Optional[str] = None, limit: int = 20)
 @app.websocket("/stream/{exercise_id}")
 async def websocket_endpoint(websocket: WebSocket, exercise_id: str):
     """
-    WebSocket to stream base64 video frames from Flutter, process them, 
-    and return JSON rep counts and form errors.
+    WebSocket to stream base64 video frames from Flutter, process them through
+    MediaPipe Pose + FitPath Biomechanics Engine, and return real-time evaluation.
     """
     await websocket.accept()
     
@@ -570,8 +586,7 @@ async def websocket_endpoint(websocket: WebSocket, exercise_id: str):
         await websocket.send_json({"error": f"Unknown exercise {exercise_id}"})
         await websocket.close()
         return
-
-    model_path = resolve_model_path("pose_landmarker_lite.task")
+    model_path = resolve_model_path()
     options = PoseLandmarkerOptions(
         base_options=BaseOptions(model_asset_path=model_path),
         running_mode=VisionRunningMode.VIDEO,
@@ -580,16 +595,27 @@ async def websocket_endpoint(websocket: WebSocket, exercise_id: str):
         min_tracking_confidence=0.5,
     )
     
-    # Session state for the exercise
+    init_stage = cfg.get("initial_stage", "up" if cfg.get("count_on") == "return_to_up" else "down")
     session = {
-        "stage": cfg.get("initial_stage", "down"),
+        "stage": init_stage,
         "counter": 0,
+        "good_counter": 0,
         "faults": [],
+        "active_faults": [],
         "min_in_rep": {},
         "max_in_rep": {},
         "pose_ema": {},
         "baselines": {},
-        "ready_frames": 0,
+        "check_history": {},
+        "cue_counts": {},
+        "recent_quality": [],
+        "concentric_times": [],
+        "eccentric_times": [],
+        "rep_cadences": [],
+        "last_velocity_loss": 0.0,
+        "last_cadence": 2.0,
+        "feedback_msg": "",
+        "phase": "work",
     }
 
     try:
@@ -597,30 +623,78 @@ async def websocket_endpoint(websocket: WebSocket, exercise_id: str):
             frame_idx = 0
             while True:
                 data = await websocket.receive_text()
-                # Assuming data is base64 encoded JPEG
-                img_data = base64.b64decode(data)
-                np_arr = np.frombuffer(img_data, np.uint8)
-                frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-                
+                if not data:
+                    continue
+
+                try:
+                    if data.startswith("{"):
+                        payload = json.loads(data)
+                        b64_str = payload.get("frame", "")
+                    else:
+                        b64_str = data
+
+                    img_data = base64.b64decode(b64_str)
+                    np_arr = np.frombuffer(img_data, np.uint8)
+                    frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+                except Exception:
+                    continue
+
                 if frame is None:
                     continue
 
+                h, w, _ = frame.shape
                 mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
-                timestamp_ms = int(frame_idx * 1000 / 30) # simulate 30fps
-                result = landmarker.detect_for_video(mp_image, timestamp_ms)
+                now = time.time()
+                timestamp_ms = int(frame_idx * 1000 / 30)
                 frame_idx += 1
-                
+
+                result = landmarker.detect_for_video(mp_image, timestamp_ms)
+
+                landmarks_detected = False
+                if result.pose_landmarks and len(result.pose_landmarks) > 0:
+                    landmarks_detected = True
+                    landmarks = result.pose_landmarks[0]
+                    world_landmarks = (
+                        result.pose_world_landmarks[0]
+                        if result.pose_world_landmarks and len(result.pose_world_landmarks) > 0
+                        else None
+                    )
+
+                    smoothed = smooth_pose_landmarks(landmarks, session["pose_ema"])
+                    raw_checks = compute_all_checks(smoothed, cfg, w, h, world_landmarks)
+                    checks = smooth_checks(raw_checks, session["check_history"])
+                    checks = apply_baselines(checks, session["baselines"], cfg)
+
+                    if cfg.get("is_hold"):
+                        update_hold_session(session, checks, cfg, 1.0 / 30.0)
+                    else:
+                        update_rep_session(session, checks, cfg, now)
+
+                    status = status_from_values(cfg, checks)
+                    active_faults = [
+                        check_name.replace("_", " ").title()
+                        for check_name, is_fault in status.items()
+                        if is_fault and check_name in cfg.get("fault_checks", [])
+                    ]
+                    session["active_faults"] = active_faults
+
                 response = {
+                    "counter": session["counter"],
                     "rep": session["counter"],
                     "stage": session["stage"],
-                    "faults": session["faults"],
-                    "landmarks_detected": bool(result.pose_landmarks)
+                    "faults": session.get("active_faults", []),
+                    "avg_cadence": round(session.get("last_cadence", 2.0), 1),
+                    "fatigue_loss": round(session.get("last_velocity_loss", 0.0) * 100, 1),
+                    "feedback": session.get("feedback_msg", ""),
+                    "landmarks_detected": landmarks_detected,
                 }
-                
                 await websocket.send_json(response)
-    
+
     except WebSocketDisconnect:
         pass
     except Exception as e:
         print(f"WS Error: {e}")
-        await websocket.close()
+        try:
+            await websocket.close()
+        except Exception:
+            pass

@@ -1,0 +1,18 @@
+<svg width="120" height="130" viewBox="0 0 120 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="fitpathGrad" x1="20" y1="5" x2="95" y2="105" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#5566A6" />
+      <stop offset="45%" stop-color="#2D3A6F" />
+      <stop offset="100%" stop-color="#161C3D" />
+    </linearGradient>
+  </defs>
+
+  <!-- Top aerodynamic wing of 'F' -->
+  <path d="M42 12 C 55 11 82 12 96 16 C 102 18 103 23 97 27 C 88 32 68 35 48 35 C 38 35 34 33 36 24 C 37 16 39 12 42 12 Z" fill="url(#fitpathGrad)" />
+
+  <!-- Middle aerodynamic crossbar of 'F' -->
+  <path d="M34 46 C 44 45 66 46 78 49 C 83 51 84 55 79 58 C 72 63 56 65 40 65 C 32 65 29 63 30 55 C 31 49 32 46 34 46 Z" fill="url(#fitpathGrad)" />
+
+  <!-- Dynamic slanted vertical stem -->
+  <path d="M42 22 L 20 95 C 18 102 14 105 8 104 C 3 103 1 98 4 90 L 26 23 C 28 17 32 15 38 16 C 41 17 43 19 42 22 Z" fill="url(#fitpathGrad)" />
+</svg>

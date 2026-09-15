@@ -47,15 +47,16 @@ class _FitPathLogoPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
 
-    // Gradient Shader matching reference image (indigo to deep navy)
+    // Rich luxury gradient matching reference (slate indigo to midnight navy)
     final gradient = const LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: [
-        Color(0xFF5B699E),
-        Color(0xFF2C376B),
-        Color(0xFF1B224B),
+        Color(0xFF4C5D99),
+        Color(0xFF283463),
+        Color(0xFF131936),
       ],
+      stops: [0.0, 0.45, 1.0],
     ).createShader(Rect.fromLTWH(0, 0, w, h));
 
     final paint = Paint()
@@ -63,32 +64,34 @@ class _FitPathLogoPainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
 
-    // Top dynamic wing / upper stroke of 'F'
+    // 1. Top dynamic wing of 'F' - sweeps right with tapered rounded tip
     final topPath = Path();
-    topPath.moveTo(w * 0.38, 0);
-    topPath.cubicTo(w * 0.65, 0, w * 0.95, h * 0.04, w, h * 0.16);
-    topPath.cubicTo(w * 0.85, h * 0.28, w * 0.60, h * 0.32, w * 0.34, h * 0.32);
-    topPath.lineTo(w * 0.25, h * 0.32);
-    topPath.cubicTo(w * 0.22, h * 0.18, w * 0.26, 0, w * 0.38, 0);
+    topPath.moveTo(w * 0.36, h * 0.05);
+    topPath.cubicTo(w * 0.55, h * 0.02, w * 0.82, h * 0.04, w * 0.96, h * 0.12);
+    topPath.cubicTo(w * 1.02, h * 0.16, w * 0.98, h * 0.24, w * 0.90, h * 0.26);
+    topPath.cubicTo(w * 0.76, h * 0.28, w * 0.54, h * 0.29, w * 0.32, h * 0.29);
+    topPath.cubicTo(w * 0.26, h * 0.20, w * 0.30, h * 0.08, w * 0.36, h * 0.05);
     topPath.close();
     canvas.drawPath(topPath, paint);
 
-    // Middle dynamic crossbar of 'F'
+    // 2. Middle dynamic crossbar of 'F' - shorter aerodynamic bar
     final midPath = Path();
-    midPath.moveTo(w * 0.28, h * 0.40);
-    midPath.cubicTo(w * 0.50, h * 0.40, w * 0.78, h * 0.42, w * 0.84, h * 0.52);
-    midPath.cubicTo(w * 0.70, h * 0.62, w * 0.48, h * 0.64, w * 0.22, h * 0.64);
-    midPath.lineTo(w * 0.16, h * 0.64);
-    midPath.cubicTo(w * 0.18, h * 0.50, w * 0.22, h * 0.40, w * 0.28, h * 0.40);
+    midPath.moveTo(w * 0.28, h * 0.38);
+    midPath.cubicTo(w * 0.46, h * 0.36, w * 0.68, h * 0.38, w * 0.78, h * 0.44);
+    midPath.cubicTo(w * 0.83, h * 0.48, w * 0.80, h * 0.55, w * 0.72, h * 0.56);
+    midPath.cubicTo(w * 0.60, h * 0.58, w * 0.42, h * 0.59, w * 0.24, h * 0.59);
+    midPath.cubicTo(w * 0.21, h * 0.50, w * 0.24, h * 0.41, w * 0.28, h * 0.38);
     midPath.close();
     canvas.drawPath(midPath, paint);
 
-    // Sleek slanted vertical stem
+    // 3. Dynamic slanted vertical stem with rounded foot
     final stemPath = Path();
-    stemPath.moveTo(w * 0.30, h * 0.26);
-    stemPath.lineTo(w * 0.10, h * 0.95);
-    stemPath.cubicTo(w * 0.05, h, w * 0.02, h, 0, h * 0.95);
-    stemPath.cubicTo(w * 0.02, h * 0.85, w * 0.12, h * 0.45, w * 0.18, h * 0.26);
+    stemPath.moveTo(w * 0.38, h * 0.18);
+    stemPath.lineTo(w * 0.16, h * 0.88);
+    stemPath.cubicTo(w * 0.13, h * 0.97, w * 0.06, h * 1.00, w * 0.02, h * 0.96);
+    stemPath.cubicTo(w * -0.01, h * 0.92, w * 0.01, h * 0.84, w * 0.06, h * 0.74);
+    stemPath.lineTo(w * 0.24, h * 0.18);
+    stemPath.cubicTo(w * 0.28, h * 0.12, w * 0.34, h * 0.13, w * 0.38, h * 0.18);
     stemPath.close();
     canvas.drawPath(stemPath, paint);
   }

@@ -33,6 +33,8 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
   Timer? _timer;
   bool _isFinished = false;
   bool _isAudioMuted = false;
+  bool _isAutoSimulating = false;
+  Timer? _autoSimTimer;
 
   // Animation Controllers for Rep Pulse & Fault Shake
   late AnimationController _repPulseController;
@@ -117,6 +119,7 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
   @override
   void dispose() {
     _timer?.cancel();
+    _autoSimTimer?.cancel();
     _subscription?.cancel();
     _wsService.dispose();
     _repPulseController.dispose();
@@ -246,7 +249,72 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
     );
   }
 
-  @override
+  void _simulateSingleRep() {
+    if (!mounted) return;
+    setState(() {
+      _stage = 'ECCENTRIC (DOWN)';
+      _activeFaults = [];
+    });
+
+    Future.delayed(const Duration(milliseconds: 700), () {
+      if (!mounted) return;
+      setState(() => _stage = 'INFLECTION (BOTTOM)');
+
+      Future.delayed(const Duration(milliseconds: 600), () {
+        if (!mounted) return;
+        setState(() => _stage = 'CONCENTRIC (UP)');
+
+        Future.delayed(const Duration(milliseconds: 700), () {
+          if (!mounted) return;
+          setState(() {
+            _reps++;
+            _stage = 'READY';
+            _avgCadence = 2.0;
+            _fatigueLoss = (_fatigueLoss + 3.5).clamp(0.0, 48.0);
+          });
+          _repPulseController.forward(from: 0.0);
+          if (!_isAudioMuted) {
+            _soundService.playRepChime();
+          }
+        });
+      });
+    });
+  }
+
+  void _triggerTestFault() {
+    if (!mounted) return;
+    setState(() {
+      _activeFaults = ['Incomplete Depth', 'Knee Valgus'];
+    });
+    _faultShakeController.forward(from: 0.0);
+    if (!_isAudioMuted) {
+      _soundService.playFaultAlert();
+    }
+    Future.delayed(const Duration(seconds: 4), () {
+      if (mounted && _activeFaults.isNotEmpty) {
+        setState(() => _activeFaults = []);
+      }
+    });
+  }
+
+  void _toggleAutoSimulation() {
+    setState(() {
+      _isAutoSimulating = !_isAutoSimulating;
+    });
+    if (_isAutoSimulating) {
+      _simulateSingleRep();
+      _autoSimTimer = Timer.periodic(const Duration(milliseconds: 2800), (t) {
+        if (!_isAutoSimulating || !mounted) {
+          t.cancel();
+          return;
+        }
+        _simulateSingleRep();
+      });
+    } else {
+      _autoSimTimer?.cancel();
+      _autoSimTimer = null;
+    }
+  }
   Widget build(BuildContext context) {
     final exName = AppConstants.exercises.firstWhere(
       (e) => e['id'] == widget.exerciseId,
@@ -353,6 +421,63 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
                             ),
+                          ),
+                          const SizedBox(height: 14),
+                          // Interactive CV Simulation Controls
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            alignment: WrapAlignment.center,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: _simulateSingleRep,
+                                icon: const Icon(Icons.fitness_center_rounded, size: 16),
+                                label: const Text('Simulate Rep', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white.withOpacity(0.18),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    side: BorderSide(color: Colors.white.withOpacity(0.25)),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                ),
+                              ),
+                              ElevatedButton.icon(
+                                onPressed: _toggleAutoSimulation,
+                                icon: Icon(_isAutoSimulating ? Icons.pause_circle_rounded : Icons.auto_awesome_rounded, size: 16),
+                                label: Text(
+                                  _isAutoSimulating ? 'Stop Auto' : 'Auto Benchmark',
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _isAutoSimulating ? AppTheme.accentGold : Colors.white.withOpacity(0.18),
+                                  foregroundColor: _isAutoSimulating ? const Color(0xFF141936) : Colors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    side: BorderSide(color: _isAutoSimulating ? AppTheme.accentGold : Colors.white.withOpacity(0.25)),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                ),
+                              ),
+                              ElevatedButton.icon(
+                                onPressed: _triggerTestFault,
+                                icon: const Icon(Icons.warning_amber_rounded, size: 16),
+                                label: const Text('Test Fault Alert', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white.withOpacity(0.18),
+                                  foregroundColor: AppTheme.accentCoral,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    side: BorderSide(color: AppTheme.accentCoral.withOpacity(0.5)),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
