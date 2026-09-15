@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants.dart';
 import '../models/app_models.dart';
 
@@ -9,6 +10,9 @@ class ApiService {
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
   ApiService._internal();
+
+  static const String _prefAuthTokenKey = 'fitpath_auth_token';
+  static const String _prefUserJsonKey = 'fitpath_auth_user';
 
   String? _authToken;
   User? _currentUser;
@@ -22,9 +26,38 @@ class ApiService {
     _currentUser = user;
   }
 
-  void logout() {
+  Future<void> saveAuth(String token, User user) async {
+    _authToken = token;
+    _currentUser = user;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_prefAuthTokenKey, token);
+      await prefs.setString(_prefUserJsonKey, jsonEncode(user.toJson()));
+    } catch (_) {}
+  }
+
+  Future<bool> restoreSavedSession() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString(_prefAuthTokenKey);
+      final userJson = prefs.getString(_prefUserJsonKey);
+      if (token != null && token.isNotEmpty && userJson != null && userJson.isNotEmpty) {
+        _authToken = token;
+        _currentUser = User.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  Future<void> logout() async {
     _authToken = null;
     _currentUser = null;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_prefAuthTokenKey);
+      await prefs.remove(_prefUserJsonKey);
+    } catch (_) {}
   }
 
   Map<String, String> _headers({bool isJson = true}) {
@@ -95,7 +128,7 @@ class ApiService {
     if (response.statusCode == 200 && data['status'] == 'success') {
       final token = data['access_token'].toString();
       final user = User.fromJson(data['user'] as Map<String, dynamic>);
-      setAuth(token, user);
+      await saveAuth(token, user);
       return {'success': true, 'user': user};
     }
     return {'success': false, 'error': data['detail'] ?? 'Registration failed'};
@@ -118,10 +151,38 @@ class ApiService {
     if (response.statusCode == 200 && data['status'] == 'success') {
       final token = data['access_token'].toString();
       final user = User.fromJson(data['user'] as Map<String, dynamic>);
-      setAuth(token, user);
+      await saveAuth(token, user);
       return {'success': true, 'user': user};
     }
     return {'success': false, 'error': data['detail'] ?? 'Invalid credentials'};
+  }
+
+  Future<Map<String, dynamic>> loginAsDemoAthlete() async {
+    try {
+      final loginRes = await login(
+        usernameOrEmail: 'demo_athlete',
+        password: 'demoPassword123',
+      );
+      if (loginRes['success'] == true) return loginRes;
+
+      final regRes = await register(
+        email: 'abdelrahman@fitpath.ai',
+        username: 'demo_athlete',
+        password: 'demoPassword123',
+        fullName: 'Abdelrahman',
+      );
+      if (regRes['success'] == true) return regRes;
+    } catch (_) {}
+
+    // Instant offline fallback demo athlete
+    const demoUser = User(
+      id: 'usr_demo_athlete',
+      email: 'abdelrahman@fitpath.ai',
+      username: 'demo_athlete',
+      fullName: 'Abdelrahman',
+    );
+    await saveAuth('demo_jwt_token', demoUser);
+    return {'success': true, 'user': demoUser};
   }
 
   // ==========================================

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-15T16:49:51",
+  "updated_at": "2026-09-15T19:05:17",
   "source": "desktop_cv_coach",
   "athlete": {
     "name": "Abdelrahman Atef",
@@ -17,7 +17,7 @@
   "weekly": {
     "days": 7,
     "sessions": 0,
-    "workouts": 4,
+    "workouts": 5,
     "reps": 0,
     "good_reps": 0,
     "quality": null,
@@ -41,14 +41,16 @@
   "notes_for_chatbot": "Computer vision owns form, reps, and live cues. Use this snapshot to suggest diet or a complementary plan. Do not override a pain flag or a form_fade stop.",
   "last_session": {
     "kind": "workout",
-    "exercise": "squat",
-    "reps": 0,
-    "duration_sec": 15,
-    "accuracy": 95.0,
-    "cadence_sec": 2.0,
-    "fatigue_loss_pct": 0.0,
-    "faults": [],
-    "saved_at": "2026-09-15T16:49:51"
+    "exercise": "overhead_press",
+    "reps": 12,
+    "duration_sec": 140,
+    "accuracy": 92.5,
+    "cadence_sec": 2.2,
+    "fatigue_loss_pct": 9.0,
+    "faults": [
+      "elbow_flare"
+    ],
+    "saved_at": "2026-09-15T19:05:17"
   },
   "status": "completed"
 }

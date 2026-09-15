@@ -9,6 +9,7 @@ import '../../../core/sound_service.dart';
 import '../../../core/theme.dart';
 import '../../../data/services/api_service.dart';
 import '../../../data/services/websocket_service.dart';
+import '../../widgets/skeleton_overlay_painter.dart';
 import '../../widgets/squircle_icon_card.dart';
 
 class LiveWorkoutScreen extends StatefulWidget {
@@ -26,11 +27,21 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
   StreamSubscription<WorkoutStreamEvent>? _subscription;
 
   int _reps = 0;
+  int _goodReps = 0;
   String _stage = 'READY';
+  String _movementPhase = 'READY';
   List<String> _activeFaults = [];
   double _avgCadence = 2.0;
   double _fatigueLoss = 0.0;
   String? _statusError;
+
+  // Real-time Pose & Biomechanical HUD metrics
+  List<Map<String, double>> _landmarks = [];
+  double _primaryAngle = 0.0;
+  double _targetDepth = 90.0;
+  double _holdSeconds = 0.0;
+  double _stabilityScore = 100.0;
+  bool _isHoldExercise = false;
 
   int _elapsedSeconds = 0;
   Timer? _timer;
@@ -263,10 +274,22 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
             }
 
             _reps = event.counter;
+            _goodReps = event.goodCounter;
             _stage = event.stage.toUpperCase();
+            _movementPhase = event.phase;
             _activeFaults = event.faults;
             _avgCadence = event.avgCadence;
             _fatigueLoss = event.fatigueLoss;
+            if (event.landmarks.isNotEmpty) {
+              _landmarks = event.landmarks;
+            }
+            if (event.primaryAngle > 0) {
+              _primaryAngle = event.primaryAngle;
+              _targetDepth = event.targetDepth;
+            }
+            _holdSeconds = event.holdSeconds;
+            _stabilityScore = event.stabilityScore;
+            _isHoldExercise = event.isHold;
             _statusError = null;
           }
         });
@@ -578,6 +601,20 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
                             child: CameraPreview(_cameraController!),
                           ),
                         ),
+                      ),
+
+                    // 1b. Live Pose Tracking Skeleton Overlay
+                    if (_landmarks.isNotEmpty)
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: SkeletonOverlayPainter(
+                            landmarks: _landmarks,
+                            isFaultActive: _activeFaults.isNotEmpty,
+                            isFrontCamera: _availableCameras.isNotEmpty &&
+                                _availableCameras[_selectedCameraIndex].lensDirection ==
+                                    CameraLensDirection.front,
+                          ),
+                        ),
                       )
                     else if (_isCameraInitializing)
                       Center(
@@ -771,21 +808,27 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
                           child: Column(
                             children: [
                               Text(
-                                '$_reps',
-                                style: const TextStyle(
-                                  fontSize: 40,
+                                _isHoldExercise ? '${_holdSeconds.toStringAsFixed(1)}s' : '$_reps',
+                                style: TextStyle(
+                                  fontSize: _isHoldExercise ? 30 : 38,
                                   fontWeight: FontWeight.w900,
                                   color: AppTheme.primary,
                                   height: 1.0,
                                 ),
                               ),
-                              const SizedBox(height: 2),
-                              const Text(
-                                'REPS',
+                              const SizedBox(height: 3),
+                              Text(
+                                _isHoldExercise
+                                    ? '${_stabilityScore.toInt()}% STABLE'
+                                    : (_goodReps > 0 && _goodReps != _reps
+                                        ? '$_goodReps CLEAN'
+                                        : 'REPS'),
                                 style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 10,
                                   fontWeight: FontWeight.w800,
-                                  color: AppTheme.textSecondary,
+                                  color: _isHoldExercise && _stabilityScore < 70
+                                      ? AppTheme.accentCoral
+                                      : AppTheme.textSecondary,
                                   letterSpacing: 0.8,
                                 ),
                               ),
@@ -795,41 +838,92 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
                       ),
                     ),
 
-                    // Top-Right Movement Stage Badge
+                    // Top-Right Movement Phase & Live Joint Angle Gauge
                     Positioned(
                       top: _activeFaults.isNotEmpty ? 74 : 16,
                       right: 16,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: AppTheme.surfaceWarm,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: AppTheme.surfaceWarmBorder.withOpacity(0.8),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              _stage,
-                              style: const TextStyle(
-                                color: AppTheme.primary,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 14,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1B2342).withOpacity(0.92),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: _getPhaseColor(_movementPhase).withOpacity(0.6),
                               ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.25),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '${_avgCadence.toStringAsFixed(1)}s pace',
-                              style: const TextStyle(
-                                color: AppTheme.textSecondary,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: _getPhaseColor(_movementPhase),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  _movementPhase,
+                                  style: TextStyle(
+                                    color: _getPhaseColor(_movementPhase),
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 13,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (_primaryAngle > 0) ...[
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.70),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: (_primaryAngle <= _targetDepth + 10)
+                                      ? AppTheme.accentGreen
+                                      : Colors.white24,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.straighten_rounded,
+                                    size: 13,
+                                    color: (_primaryAngle <= _targetDepth + 10)
+                                        ? AppTheme.accentGreen
+                                        : AppTheme.accentGold,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    '${_primaryAngle.toInt()}° (Target: ${_targetDepth.toInt()}°)',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: (_primaryAngle <= _targetDepth + 10)
+                                          ? AppTheme.accentGreen
+                                          : Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
-                        ),
+                        ],
                       ),
                     ),
 
@@ -954,6 +1048,24 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
         ],
       ),
     );
+  }
+
+  Color _getPhaseColor(String phase) {
+    switch (phase.toUpperCase()) {
+      case 'BOTTOM':
+      case 'INFLECTION':
+        return AppTheme.accentGold;
+      case 'CONCENTRIC':
+        return const Color(0xFF38BDF8);
+      case 'LOCKOUT':
+      case 'COMPLETE':
+        return AppTheme.accentGreen;
+      case 'HOLDING':
+        return AppTheme.accentGreen;
+      case 'ECCENTRIC':
+      default:
+        return Colors.white70;
+    }
   }
 
   static double math_sin(double radians) {

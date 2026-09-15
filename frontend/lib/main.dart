@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'core/constants.dart';
 import 'core/theme.dart';
+import 'data/services/api_service.dart';
 import 'ui/navigation/app_router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppConstants.init();
-  runApp(const FitPathApp());
+  final isLoggedIn = await ApiService().restoreSavedSession();
+  final router = createAppRouter(initialLocation: isLoggedIn ? '/dashboard' : '/welcome');
+  runApp(FitPathApp(router: router));
 }
 
 class FitPathApp extends StatelessWidget {
-  const FitPathApp({super.key});
+  final GoRouter? router;
+  const FitPathApp({super.key, this.router});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +23,7 @@ class FitPathApp extends StatelessWidget {
       title: 'FitPath AI - Computer Vision & Gym Coach',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      routerConfig: appRouter,
+      routerConfig: router ?? appRouter,
     );
   }
 }

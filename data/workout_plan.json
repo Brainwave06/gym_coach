@@ -1,32 +1,32 @@
 {
-  "generated_at": "2023-10-04T12:00:00Z",
-  "coach_notes": "Great job on your recent workouts, Test Athlete! I noticed you're feeling a bit of moderate fatigue, so we'll keep the intensity manageable today. Focus on maintaining good form, especially in your core and glutes, to get the most out of each exercise. Let's keep pushing towards your fat loss goals!",
+  "generated_at": "2023-10-05T14:30:00Z",
+  "coach_notes": "Great job on your recent workouts, Test Athlete! I noticed you're feeling a bit of moderate fatigue, which is normal as you push through your fat loss journey. Let's focus on maintaining good form and listening to your body. For the box squat, make sure to keep your chest up and core engaged. During the knee push-ups, focus on keeping your back straight and engaging your core to protect your knees and shoulders.",
   "plan": [
     {
       "exercise_id": "box_squat",
       "exercise_name": "Box Squat",
       "sets": 2,
       "reps": 10,
-      "coaching_focus": "Keep your chest up and core engaged. Make sure to sit back into the box, not onto it, to protect your knees."
-    },
-    {
-      "exercise_id": "glute_bridge",
-      "exercise_name": "Glute Bridge",
-      "sets": 2,
-      "reps": 15,
-      "coaching_focus": "Squeeze your glutes at the top of the movement and avoid arching your lower back. Keep your core tight throughout the exercise."
+      "coaching_focus": "Keep your chest up and core engaged. Focus on a controlled descent and ascent."
     },
     {
       "exercise_id": "knee_pushup",
       "exercise_name": "Knee Push-up",
       "sets": 2,
       "reps": 10,
-      "coaching_focus": "Maintain a straight line from your head to your knees. Engage your core and keep your elbows close to your body as you lower yourself."
+      "coaching_focus": "Keep your back straight and engage your core. Focus on a full range of motion."
+    },
+    {
+      "exercise_id": "plank",
+      "exercise_name": "Plank",
+      "sets": 2,
+      "reps": 30,
+      "coaching_focus": "Maintain a straight line from head to heels. Engage your core and avoid sagging hips."
     }
   ],
   "nutrition_recovery": {
     "protein_target_g": 30,
-    "hydration_advice": "Make sure to drink plenty of water throughout the day, especially after your workout. Aim for at least 500ml of water within the first hour post-workout.",
-    "recommended_meal": "Grilled chicken breast with quinoa and steamed broccoli. Add a side of Greek yogurt with a handful of mixed berries for a well-rounded, high-protein recovery meal."
+    "hydration_advice": "Make sure to drink at least 500ml of water within 30 minutes after your workout to help with hydration and recovery.",
+    "recommended_meal": "Grilled chicken breast (about 100g) with a side of quinoa and steamed broccoli. This meal will provide you with the necessary protein and carbohydrates to aid in muscle recovery and replenish energy stores."
   }
 }

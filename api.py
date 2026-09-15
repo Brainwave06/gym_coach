@@ -23,6 +23,8 @@ from common.exercise_engine import (
     status_from_values,
     update_hold_session,
     update_rep_session,
+    compute_movement_phase,
+    accumulate_extrema,
 )
 from mediapipe.tasks.python import BaseOptions
 from mediapipe.tasks.python.vision import (
@@ -642,6 +644,8 @@ async def websocket_endpoint(websocket: WebSocket, exercise_id: str):
         "stage": init_stage,
         "counter": 0,
         "good_counter": 0,
+        "hold_time": 0.0,
+        "good_time": 0.0,
         "faults": [],
         "active_faults": [],
         "min_in_rep": {},
@@ -720,17 +724,46 @@ async def websocket_endpoint(websocket: WebSocket, exercise_id: str):
                     ]
                     session["active_faults"] = active_faults
 
-                response = {
-                    "counter": session["counter"],
-                    "rep": session["counter"],
-                    "stage": session["stage"],
-                    "faults": session.get("active_faults", []),
-                    "avg_cadence": round(session.get("last_cadence", 2.0), 1),
-                    "fatigue_loss": round(session.get("last_velocity_loss", 0.0) * 100, 1),
-                    "feedback": session.get("feedback_msg", ""),
-                    "landmarks_detected": landmarks_detected,
-                }
-                await websocket.send_json(response)
+                    primary_check = cfg.get("primary_check", "knee")
+                    primary_val = checks.get(primary_check) if landmarks_detected else None
+                    primary_angle = round(float(primary_val), 1) if primary_val is not None else 0.0
+
+                    check_def = cfg.get("checks", {}).get(primary_check, {})
+                    target_depth = float(check_def.get("down_threshold", 90.0))
+
+                    phase = compute_movement_phase(session, primary_val, cfg)
+                    hold_time = float(session.get("hold_time", 0.0))
+                    good_time = float(session.get("good_time", 0.0))
+                    stability_score = round(100.0 * (good_time / hold_time), 1) if hold_time > 0.5 else 100.0
+
+                    landmarks_payload = []
+                    if landmarks_detected and landmarks:
+                        for lm in landmarks:
+                            landmarks_payload.append({
+                                "x": round(float(lm.x), 4),
+                                "y": round(float(lm.y), 4),
+                                "v": round(float(getattr(lm, "visibility", 1.0)), 2),
+                            })
+
+                    response = {
+                        "counter": session["counter"],
+                        "rep": session["counter"],
+                        "good_counter": session.get("good_counter", session["counter"]),
+                        "stage": session["stage"],
+                        "phase": phase,
+                        "faults": session.get("active_faults", []),
+                        "avg_cadence": round(session.get("last_cadence", 2.0), 1),
+                        "fatigue_loss": round(session.get("last_velocity_loss", 0.0) * 100, 1),
+                        "feedback": session.get("feedback_msg", ""),
+                        "landmarks_detected": landmarks_detected,
+                        "landmarks": landmarks_payload,
+                        "primary_angle": primary_angle,
+                        "target_depth": target_depth,
+                        "hold_seconds": round(hold_time, 1),
+                        "stability_score": stability_score,
+                        "is_hold": bool(cfg.get("is_hold", False)),
+                    }
+                    await websocket.send_json(response)
 
     except WebSocketDisconnect:
         pass

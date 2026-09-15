@@ -795,6 +795,48 @@ def accumulate_extrema(session, checks):
             session["max_in_rep"][name] = val
 
 
+def compute_movement_phase(session, primary_val, exercise_config):
+    if exercise_config.get("is_hold"):
+        return "HOLDING" if session.get("stage") == "hold" else "READY"
+
+    primary_check_name = exercise_config.get("primary_check", "knee")
+    primary_def = exercise_config.get("checks", {}).get(primary_check_name, {})
+    direction = primary_def.get("direction", "below")
+    down_thresh = float(primary_def.get("down_threshold", 100))
+    up_thresh = float(primary_def.get("up_threshold", 160)) if primary_def.get("up_threshold") is not None else 155.0
+    stage = session.get("stage", "up")
+
+    if primary_val is None:
+        return "READY"
+
+    if direction == "below":
+        if stage == "down":
+            if session.get("concentric_t0"):
+                return "CONCENTRIC"
+            min_val = session.get("min_in_rep", {}).get(primary_check_name)
+            if min_val is not None and primary_val <= min_val + 8:
+                return "BOTTOM"
+            return "CONCENTRIC"
+        else:
+            # stage is "up"
+            if primary_val < (up_thresh - 8):
+                return "ECCENTRIC"
+            return "LOCKOUT" if session.get("counter", 0) > 0 else "READY"
+    else:
+        # direction == "above"
+        if stage == "down":
+            if session.get("concentric_t0"):
+                return "ECCENTRIC"
+            max_val = session.get("max_in_rep", {}).get(primary_check_name)
+            if max_val is not None and primary_val >= max_val - 8:
+                return "LOCKOUT"
+            return "CONCENTRIC"
+        else:
+            if primary_val > (down_thresh + 8):
+                return "CONCENTRIC"
+            return "LOCKOUT" if session.get("counter", 0) > 0 else "READY"
+
+
 def update_rep_session(session, checks, exercise_config, now):
     primary_check_name = exercise_config["primary_check"]
     primary_def = exercise_config["checks"][primary_check_name]
@@ -802,18 +844,46 @@ def update_rep_session(session, checks, exercise_config, now):
     if primary_value is None:
         return
 
+    direction = primary_def.get("direction", "below")
     count_on = exercise_config.get("count_on", "return_to_up")
     stage = session["stage"]
 
-    candidate = stage
-    if stage == "down" and primary_value > primary_def["up_threshold"]:
-        candidate = "up"
-    elif stage == "up" and primary_value < primary_def["down_threshold"]:
-        candidate = "down"
+    down_thresh = float(primary_def["down_threshold"])
+    raw_up_thresh = primary_def.get("up_threshold")
+    up_thresh = float(raw_up_thresh) if raw_up_thresh is not None else None
+
+    # Realistic thresholds with hysteresis:
+    # Avoid requiring unnatural hyperextension (160 deg) for phone cameras at body height
+    if direction == "below":
+        effective_down = down_thresh + 3.0  # Slight tolerance for inflection
+        effective_up = (up_thresh - 8.0) if up_thresh is not None else 150.0
+
+        if stage == "up":
+            candidate = "down" if primary_value <= effective_down else "up"
+        else:
+            # Check for concentric reversal
+            min_recorded = session.get("min_in_rep", {}).get(primary_check_name)
+            if min_recorded is not None and primary_value >= (min_recorded + 7.0):
+                if not session.get("concentric_t0"):
+                    session["concentric_t0"] = now
+
+            candidate = "up" if primary_value >= effective_up else "down"
+    else:
+        # direction == "above" (e.g. overhead press, lateral raise, curl)
+        effective_down = down_thresh - 3.0
+        effective_up = (up_thresh + 8.0) if up_thresh is not None else 75.0
+
+        if stage == "up":
+            candidate = "down" if primary_value >= effective_down else "up"
+        else:
+            max_recorded = session.get("max_in_rep", {}).get(primary_check_name)
+            if max_recorded is not None and primary_value <= (max_recorded - 7.0):
+                if not session.get("concentric_t0"):
+                    session["concentric_t0"] = now
+
+            candidate = "up" if primary_value <= effective_up else "down"
 
     if candidate != stage:
-        if stage == "down" and candidate == "up" and not session.get("concentric_t0"):
-            session["concentric_t0"] = now
         if session.get("stage_candidate") == candidate:
             session["stage_candidate_count"] = session.get("stage_candidate_count", 0) + 1
         else:
@@ -823,7 +893,9 @@ def update_rep_session(session, checks, exercise_config, now):
         session["stage_candidate"] = None
         session["stage_candidate_count"] = 0
 
-    if session.get("stage_candidate_count", 0) >= 3:
+    # 1 frame confirmation for responsive real-time turnaround without missed reps
+    required_frames = exercise_config.get("candidate_frames", 1)
+    if session.get("stage_candidate_count", 0) >= required_frames:
         new_stage = session["stage_candidate"]
         session["stage_candidate"] = None
         session["stage_candidate_count"] = 0
@@ -849,8 +921,8 @@ def update_rep_session(session, checks, exercise_config, now):
                 session["stage"] = "up"
                 finish_rep(session, exercise_config, now)
 
-    if session["stage"] == "down":
-        accumulate_extrema(session, checks)
+    # Accumulate min and max extrema whenever in motion
+    accumulate_extrema(session, checks)
 
 
 def update_hold_session(session, checks, exercise_config, dt):

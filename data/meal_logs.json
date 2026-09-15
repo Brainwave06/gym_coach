@@ -480,5 +480,93 @@
       "daily_protein_target_g": 130.0,
       "meal_protein_coverage_pct": 36.9
     }
+  },
+  {
+    "timestamp": "2026-09-15T17:32:32",
+    "meal_name": "Long Chips Original Mashed Potato Snack",
+    "items": [
+      {
+        "name": "Long Chips Original Mashed Potato Snack",
+        "portion_g": 28,
+        "calories": 140,
+        "protein_g": 2.0,
+        "carbs_g": 25.0,
+        "fat_g": 4.0
+      }
+    ],
+    "total_calories": 140,
+    "total_protein_g": 2.0,
+    "total_carbs_g": 25.0,
+    "total_fat_g": 4.0,
+    "coach_feedback": "This snack is low in protein and calories, which may not align well with Abdelrahman's strength training goals. While it provides a quick source of carbohydrates, it falls significantly short of his daily protein target of 130g and contributes only a small portion of his 1711 kcal daily caloric needs. It can be used as a light snack but should be paired with higher-protein foods to support muscle recovery and growth.",
+    "suggestions": [
+      "Pair this snack with a high-protein option like Greek yogurt, cottage cheese, or a hard-boiled egg to increase protein intake.",
+      "Consider replacing this snack with a higher-protein alternative such as a protein bar or a handful of nuts for better alignment with strength-building goals."
+    ],
+    "target_comparison": {
+      "daily_protein_target_g": 130.0,
+      "meal_protein_coverage_pct": 1.5
+    }
+  },
+  {
+    "timestamp": "2026-09-15T17:44:11",
+    "meal_name": "No Meal Image Provided",
+    "items": [],
+    "total_calories": 0,
+    "total_protein_g": 0.0,
+    "total_carbs_g": 0.0,
+    "total_fat_g": 0.0,
+    "coach_feedback": "No meal image was provided for analysis. Please upload a photo of your meal so I can assess its nutritional content and provide feedback tailored to Abdelrahman Atef's strength training goals.",
+    "suggestions": [
+      "Upload a clear image of your meal to get accurate macronutrient tracking.",
+      "Focus on high-protein foods like chicken, fish, eggs, or legumes to meet your 130g daily protein target.",
+      "Include complex carbohydrates (e.g., rice, quinoa, sweet potato) and healthy fats (e.g., avocado, olive oil) to support energy needs for strength training."
+    ],
+    "target_comparison": {
+      "daily_protein_target_g": 130.0,
+      "meal_protein_coverage_pct": 0.0
+    }
+  },
+  {
+    "timestamp": "2026-09-15T19:05:52",
+    "meal_name": "Chicken Breast and Jasmine Rice with Broccoli",
+    "items": [
+      {
+        "name": "Grilled Chicken Breast",
+        "portion_g": 200,
+        "calories": 330,
+        "protein_g": 62.0,
+        "carbs_g": 0.0,
+        "fat_g": 7.0
+      },
+      {
+        "name": "White Jasmine Rice",
+        "portion_g": 180,
+        "calories": 234,
+        "protein_g": 4.5,
+        "carbs_g": 50.4,
+        "fat_g": 0.5
+      },
+      {
+        "name": "Steamed Broccoli",
+        "portion_g": 100,
+        "calories": 35,
+        "protein_g": 2.4,
+        "carbs_g": 7.0,
+        "fat_g": 0.4
+      }
+    ],
+    "total_calories": 599,
+    "total_protein_g": 68.9,
+    "total_carbs_g": 57.4,
+    "total_fat_g": 7.9,
+    "coach_feedback": "Excellent high-protein recovery meal!",
+    "suggestions": [
+      "Drink 500ml water"
+    ],
+    "target_comparison": {
+      "daily_protein_target_g": 140.0,
+      "meal_protein_coverage_pct": 49.2
+    }
   }
 ]

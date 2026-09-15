@@ -17,6 +17,7 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   late bool _isLogin;
   bool _isLoading = false;
+  bool _obscurePassword = true;
   String? _errorMessage;
 
   final _emailCtrl = TextEditingController();
@@ -40,6 +41,24 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _handleSubmit() async {
+    final emailOrUser = _emailCtrl.text.trim();
+    final password = _passwordCtrl.text;
+
+    if (emailOrUser.isEmpty) {
+      setState(() => _errorMessage = _isLogin ? 'Please enter your email or username.' : 'Please enter your email address.');
+      return;
+    }
+
+    if (!_isLogin && _usernameCtrl.text.trim().isEmpty) {
+      setState(() => _errorMessage = 'Please choose a username.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setState(() => _errorMessage = 'Password must be at least 6 characters.');
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -49,8 +68,8 @@ class _AuthScreenState extends State<AuthScreen> {
     try {
       if (_isLogin) {
         final res = await api.login(
-          usernameOrEmail: _emailCtrl.text.trim(),
-          password: _passwordCtrl.text,
+          usernameOrEmail: emailOrUser,
+          password: password,
         );
         if (res['success'] == true) {
           if (mounted) context.go('/dashboard');
@@ -59,9 +78,10 @@ class _AuthScreenState extends State<AuthScreen> {
         }
       } else {
         final res = await api.register(
-          email: _emailCtrl.text.trim(),
+          email: emailOrUser,
           username: _usernameCtrl.text.trim(),
-          password: _passwordCtrl.text,
+          password: password,
+          fullName: _nameCtrl.text.trim().isEmpty ? null : _nameCtrl.text.trim(),
         );
         if (res['success'] == true) {
           if (mounted) context.go('/dashboard');
@@ -71,6 +91,25 @@ class _AuthScreenState extends State<AuthScreen> {
       }
     } catch (e) {
       setState(() => _errorMessage = 'Connection error: $e');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _handleDemoAthleteLogin() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      final res = await ApiService().loginAsDemoAthlete();
+      if (res['success'] == true) {
+        if (mounted) context.go('/dashboard');
+      } else {
+        setState(() => _errorMessage = res['error']?.toString() ?? 'Demo athlete login failed');
+      }
+    } catch (_) {
+      _handleGuestBypass();
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -278,11 +317,20 @@ class _AuthScreenState extends State<AuthScreen> {
 
                           TextField(
                             controller: _passwordCtrl,
-                            obscureText: true,
+                            obscureText: _obscurePassword,
                             style: const TextStyle(color: AppTheme.textPrimary),
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Password',
-                              prefixIcon: Icon(Icons.lock_outline, color: AppTheme.textSecondary),
+                              prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.textSecondary),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                  color: AppTheme.textSecondary,
+                                  size: 20,
+                                ),
+                                tooltip: _obscurePassword ? 'Show password' : 'Hide password',
+                                onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -339,43 +387,66 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 18),
 
-                    // Guest Athlete Pill Button
+                    // 1-Tap Demo Athlete Button
                     Container(
                       height: 50,
                       decoration: BoxDecoration(
-                        color: AppTheme.surfaceWarm,
+                        color: const Color(0xFFFFF9E6),
                         borderRadius: BorderRadius.circular(26),
                         border: Border.all(
-                          color: AppTheme.surfaceWarmBorder,
-                          width: 1,
+                          color: const Color(0xFFFFD54F).withOpacity(0.8),
+                          width: 1.5,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFFFD54F).withOpacity(0.15),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: _handleGuestBypass,
+                          onTap: _isLoading ? null : _handleDemoAthleteLogin,
                           borderRadius: BorderRadius.circular(26),
                           child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
                                 Icons.bolt_rounded,
-                                color: AppTheme.primaryLight,
-                                size: 20,
+                                color: Color(0xFFD97706),
+                                size: 22,
                               ),
                               SizedBox(width: 8),
                               Text(
-                                'Explore as Guest Athlete',
+                                '⚡ 1-Tap Login as Demo Athlete',
                                 style: TextStyle(
-                                  color: AppTheme.primary,
-                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF92400E),
+                                  fontWeight: FontWeight.w800,
                                   fontSize: 14,
                                 ),
                               ),
                             ],
                           ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // Guest Athlete Text Button
+                    TextButton.icon(
+                      onPressed: _handleGuestBypass,
+                      icon: const Icon(Icons.explore_outlined, size: 16, color: AppTheme.textSecondary),
+                      label: const Text(
+                        'Continue as Guest Athlete (Skip Login)',
+                        style: TextStyle(
+                          color: AppTheme.textSecondary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),

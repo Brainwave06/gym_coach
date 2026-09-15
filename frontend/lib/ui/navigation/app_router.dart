@@ -11,9 +11,9 @@ import '../features/onboarding/welcome_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
-final GoRouter appRouter = GoRouter(
+GoRouter createAppRouter({String initialLocation = '/welcome'}) => GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/welcome',
+  initialLocation: initialLocation,
   routes: [
     GoRoute(
       path: '/welcome',
@@ -80,6 +80,8 @@ final GoRouter appRouter = GoRouter(
     ),
   ],
 );
+
+final GoRouter appRouter = createAppRouter();
 
 class ScaffoldWithNavBar extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
