@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'core/constants.dart';
 import 'core/theme.dart';
 import 'ui/navigation/app_router.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppConstants.init();
   runApp(const FitPathApp());
 }
 

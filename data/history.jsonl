@@ -90,3 +90,4 @@
 {"kind": "workout", "plan": "Week 4 Day 3", "week": 4, "day": 3, "athlete": "Abdelrahman Atef", "time_budget_min": 40, "blocks": [], "aborted": true, "saved_at": "2026-09-15T06:19:22"}
 {"kind": "workout", "exercise": "plank", "reps": 0, "duration_sec": 8, "accuracy": 95.0, "cadence_sec": 2.0, "fatigue_loss_pct": 0.0, "faults": [], "saved_at": "2026-09-15T07:48:44"}
 {"kind": "workout", "exercise": "squat", "reps": 5, "duration_sec": 18, "accuracy": 95.0, "cadence_sec": 2.0, "fatigue_loss_pct": 17.5, "faults": [], "saved_at": "2026-09-15T08:47:29"}
+{"kind": "workout", "exercise": "squat", "reps": 0, "duration_sec": 15, "accuracy": 95.0, "cadence_sec": 2.0, "fatigue_loss_pct": 0.0, "faults": [], "saved_at": "2026-09-15T16:49:51"}

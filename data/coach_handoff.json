@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-15T08:47:29",
+  "updated_at": "2026-09-15T16:49:51",
   "source": "desktop_cv_coach",
   "athlete": {
     "name": "Abdelrahman Atef",
@@ -17,7 +17,7 @@
   "weekly": {
     "days": 7,
     "sessions": 0,
-    "workouts": 3,
+    "workouts": 4,
     "reps": 0,
     "good_reps": 0,
     "quality": null,
@@ -42,13 +42,13 @@
   "last_session": {
     "kind": "workout",
     "exercise": "squat",
-    "reps": 5,
-    "duration_sec": 18,
+    "reps": 0,
+    "duration_sec": 15,
     "accuracy": 95.0,
     "cadence_sec": 2.0,
-    "fatigue_loss_pct": 17.5,
+    "fatigue_loss_pct": 0.0,
     "faults": [],
-    "saved_at": "2026-09-15T08:47:29"
+    "saved_at": "2026-09-15T16:49:51"
   },
   "status": "completed"
 }

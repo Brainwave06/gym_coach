@@ -30,10 +30,44 @@ class ApiService {
   Map<String, String> _headers({bool isJson = true}) {
     final map = <String, String>{};
     if (isJson) map['Content-Type'] = 'application/json';
+    map['ngrok-skip-browser-warning'] = 'true';
     if (_authToken != null) {
       map['Authorization'] = 'Bearer $_authToken';
     }
     return map;
+  }
+
+  Future<Map<String, dynamic>> testConnection([String? targetUrl]) async {
+    final baseUrl = targetUrl ?? AppConstants.apiBaseUrl;
+    final stopwatch = Stopwatch()..start();
+    try {
+      final uri = Uri.parse(baseUrl);
+      final response = await http.get(uri, headers: {
+        'ngrok-skip-browser-warning': 'true',
+      }).timeout(const Duration(seconds: 4));
+      stopwatch.stop();
+
+      if (response.statusCode >= 200 && response.statusCode < 400) {
+        return {
+          'success': true,
+          'latencyMs': stopwatch.elapsedMilliseconds,
+          'message': 'Connected (${stopwatch.elapsedMilliseconds}ms)',
+        };
+      } else {
+        return {
+          'success': false,
+          'latencyMs': stopwatch.elapsedMilliseconds,
+          'message': 'Server returned HTTP ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      stopwatch.stop();
+      return {
+        'success': false,
+        'latencyMs': stopwatch.elapsedMilliseconds,
+        'message': 'Cannot reach server: $e',
+      };
+    }
   }
 
   // ==========================================

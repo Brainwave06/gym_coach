@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/sound_service.dart';
 import '../../../core/theme.dart';
 import '../../widgets/fitpath_logo.dart';
+import '../../widgets/server_settings_dialog.dart';
 import '../../widgets/squircle_icon_card.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -44,11 +45,50 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         child: SafeArea(
           child: Column(
             children: [
-              const SizedBox(height: 16),
-              // Top Brand Header: Stylized F + "FitPath"
-              const FitPathLogo(
-                size: 46,
-                showText: true,
+              const SizedBox(height: 12),
+              // Top Brand Header: Stylized F + "FitPath" + Server Settings Pill
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 36),
+                    const Expanded(
+                      child: Center(
+                        child: FitPathLogo(
+                          size: 42,
+                          showText: true,
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => ServerSettingsDialog.show(context),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppTheme.surfaceWarm,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: AppTheme.surfaceWarmBorder),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.dns_rounded, size: 13, color: AppTheme.accentGold),
+                            SizedBox(width: 4),
+                            Text(
+                              'Server',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
 
               const SizedBox(height: 20),
