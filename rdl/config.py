@@ -1,0 +1,66 @@
+EXERCISE_CONFIG = {
+    "display_name": "Romanian Deadlift",
+    "mode": "reps",
+    "view": "side",
+    "initial_stage": "up",
+    "side_check": "hip",
+    "set_size": 8,
+    "rest_seconds": 45,
+    "calibrate_seconds": 2.5,
+    "setup_hint": "Stand sideways. Soft knees, push hips backward with a flat, neutral spine.",
+    "important_joints": ["shoulder", "hip", "knee", "ankle"],
+    "calibrate_hint": "Stand tall with weights at thighs, shoulders back",
+    "not_visible_message": "Stand sideways so hips, knees, and torso are clearly visible",
+    "landmarks": {
+        "left": {"shoulder": 11, "hip": 23, "knee": 25, "ankle": 27},
+        "right": {"shoulder": 12, "hip": 24, "knee": 26, "ankle": 28},
+    },
+    "checks": {
+        "hip_hinge": {
+            "type": "min_angle",
+            "points": ("shoulder", "hip", "knee"),
+            "down_threshold": 120,
+            "up_threshold": 160,
+        },
+        "excessive_knee_bend": {
+            "type": "min_angle",
+            "points": ("hip", "knee", "ankle"),
+            "down_threshold": 115,
+            "up_threshold": None,
+            "direction": "below",
+        },
+        "torso_rounding": {
+            "type": "vertical_angle",
+            "points": ("shoulder", "hip"),
+            "down_threshold": 65,
+            "up_threshold": None,
+            "direction": "above",
+        },
+    },
+    "primary_check": "hip_hinge",
+    "depth_checks": ["hip_hinge"],
+    "fault_checks": ["excessive_knee_bend", "torso_rounding"],
+    "feedback_rules": [
+        {
+            "require": {"hip_hinge": True, "excessive_knee_bend": False, "torso_rounding": False},
+            "message": "Rep {count}: Clean RDL hinge ({side}) - great hamstring load!",
+            "counts_as_good": True,
+        },
+        {
+            "require": {"excessive_knee_bend": True},
+            "message": "Rep {count}: Too much knee bend - hinge back at hips, don't squat the deadlift",
+            "counts_as_good": False,
+        },
+        {
+            "require": {"torso_rounding": True},
+            "message": "Rep {count}: Back rounding forward - brace core and keep spine neutral",
+            "counts_as_good": False,
+        },
+        {
+            "require": {"hip_hinge": False},
+            "message": "Rep {count}: Hinge deeper - push your hips back until you feel the stretch",
+            "counts_as_good": False,
+        },
+    ],
+    "default_message": "Rep {count}: Hinge back at your hips with a flat back",
+}

@@ -1,0 +1,67 @@
+EXERCISE_CONFIG = {
+    "display_name": "Lateral Raise",
+    "mode": "reps",
+    "view": "front",
+    "initial_stage": "down",
+    "count_on": "reach_up",
+    "side_check": "shoulder",
+    "set_size": 12,
+    "rest_seconds": 30,
+    "calibrate_seconds": 2.5,
+    "setup_hint": "Stand facing the camera or slight angle. Arms at sides with slight elbow bend.",
+    "important_joints": ["shoulder", "elbow", "wrist", "hip"],
+    "calibrate_hint": "Stand tall, arms hanging at sides with dumbbells",
+    "not_visible_message": "Step back so your full upper body and arms are in frame",
+    "landmarks": {
+        "left": {"shoulder": 11, "elbow": 13, "wrist": 15, "hip": 23},
+        "right": {"shoulder": 12, "elbow": 14, "wrist": 16, "hip": 24},
+    },
+    "checks": {
+        "arm_elevation": {
+            "type": "angle",
+            "points": ("hip", "shoulder", "elbow"),
+            "down_threshold": 32,
+            "up_threshold": 78,
+        },
+        "torso_swing": {
+            "type": "vertical_angle",
+            "points": ("shoulder", "hip"),
+            "down_threshold": 18,
+            "up_threshold": None,
+            "direction": "above",
+        },
+        "over_raise": {
+            "type": "angle",
+            "points": ("hip", "shoulder", "elbow"),
+            "down_threshold": 105,
+            "up_threshold": None,
+            "direction": "above",
+        },
+    },
+    "primary_check": "arm_elevation",
+    "depth_checks": ["arm_elevation"],
+    "fault_checks": ["torso_swing", "over_raise"],
+    "feedback_rules": [
+        {
+            "require": {"arm_elevation": True, "torso_swing": False, "over_raise": False},
+            "message": "Rep {count}: Clean lateral raise ({side}) - isolated side delts!",
+            "counts_as_good": True,
+        },
+        {
+            "require": {"torso_swing": True},
+            "message": "Rep {count}: Body English detected - don't swing torso to lift the weights",
+            "counts_as_good": False,
+        },
+        {
+            "require": {"over_raise": True},
+            "message": "Rep {count}: Raising too high - stop parallel at shoulder height to protect joints",
+            "counts_as_good": False,
+        },
+        {
+            "require": {"arm_elevation": False},
+            "message": "Rep {count}: Raise higher - bring elbows up to shoulder parallel",
+            "counts_as_good": False,
+        },
+    ],
+    "default_message": "Rep {count}: Raise weights out to shoulder height with strict form",
+}

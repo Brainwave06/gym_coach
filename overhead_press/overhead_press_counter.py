@@ -1,0 +1,18 @@
+"""Overhead Shoulder Press (OHP) coach. Run: python overhead_press/overhead_press_counter.py"""
+import os
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from common.exercise_engine import run_exercise
+from overhead_press.config import EXERCISE_CONFIG
+
+
+def main():
+    run_exercise(EXERCISE_CONFIG)
+
+
+if __name__ == "__main__":
+    main()

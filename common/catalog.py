@@ -4,9 +4,12 @@ from biceps_curl.config import EXERCISE_CONFIG as BICEPS_CONFIG
 from bird_dog.config import EXERCISE_CONFIG as BIRD_DOG_CONFIG
 from dead_bug.config import EXERCISE_CONFIG as DEAD_BUG_CONFIG
 from glute_bridge.config import EXERCISE_CONFIG as GLUTE_CONFIG
+from lateral_raise.config import EXERCISE_CONFIG as LATERAL_RAISE_CONFIG
 from lunge.config import EXERCISE_CONFIG as LUNGE_CONFIG
+from overhead_press.config import EXERCISE_CONFIG as OVERHEAD_PRESS_CONFIG
 from plank.config import EXERCISE_CONFIG as PLANK_CONFIG
 from pushup.config import EXERCISE_CONFIG as PUSHUP_CONFIG
+from rdl.config import EXERCISE_CONFIG as RDL_CONFIG
 from squat.config import EXERCISE_CONFIG as SQUAT_CONFIG
 from wall_sit.config import EXERCISE_CONFIG as WALL_SIT_CONFIG
 
@@ -38,6 +41,9 @@ BASE = {
     "bird_dog": BIRD_DOG_CONFIG,
     "dead_bug": DEAD_BUG_CONFIG,
     "biceps_curl": BICEPS_CONFIG,
+    "rdl": RDL_CONFIG,
+    "overhead_press": OVERHEAD_PRESS_CONFIG,
+    "lateral_raise": LATERAL_RAISE_CONFIG,
 }
 
 for key, cfg in BASE.items():
@@ -54,18 +60,24 @@ TEACH = {
     "bird_dog": "All fours. Reach one arm forward and the opposite leg back. Hips stay square.",
     "dead_bug": "On your back. Ribs down. Extend opposite arm and leg without arching.",
     "biceps_curl": "Elbow pinned to your side. Curl without swinging or leaning back.",
+    "rdl": "Soft knees, push hips back with a flat back until hamstrings stretch, then drive through hips.",
+    "overhead_press": "Squeeze glutes and brace core. Press weights straight overhead to full lockout without arching back.",
+    "lateral_raise": "Slight elbow bend. Raise weights out to shoulder level without swinging your torso.",
 }
 
 MENU = [
-    ("1", "squat", "Squat         ANY"),
-    ("2", "plank", "Plank         ANY"),
-    ("3", "pushup", "Push-up       ANY"),
-    ("4", "lunge", "Lunge         ANY"),
-    ("5", "glute_bridge", "Glute bridge  ANY"),
-    ("6", "wall_sit", "Wall sit      ANY"),
-    ("7", "bird_dog", "Bird dog      ANY"),
-    ("8", "dead_bug", "Dead bug      ANY"),
-    ("9", "biceps_curl", "Biceps curl   ANY"),
+    ("1", "squat", "Squat           ANY"),
+    ("2", "plank", "Plank           ANY"),
+    ("3", "pushup", "Push-up         ANY"),
+    ("4", "lunge", "Lunge           ANY"),
+    ("5", "glute_bridge", "Glute bridge    ANY"),
+    ("6", "wall_sit", "Wall sit        ANY"),
+    ("7", "bird_dog", "Bird dog        ANY"),
+    ("8", "dead_bug", "Dead bug        ANY"),
+    ("9", "biceps_curl", "Biceps curl     ANY"),
+    ("10", "rdl", "Romanian Deadlift (RDL)"),
+    ("11", "overhead_press", "Overhead Press  (OHP)"),
+    ("12", "lateral_raise", "Lateral Raise   (Delts)"),
 ]
 
 

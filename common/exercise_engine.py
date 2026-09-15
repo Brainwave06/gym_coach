@@ -653,17 +653,80 @@ def maybe_start_rest(session, exercise_config, now):
         play_tone("rest")
 
 
+def compute_rep_cadence_and_fatigue(session, eccentric_duration, concentric_duration):
+    """
+    Computes rep cadence (eccentric/concentric), velocity loss percentage against
+    fresh baseline (reps 1-3), and maps to science-based Reps in Reserve (RIR) and RPE.
+    """
+    conc = max(concentric_duration, 0.2)
+    ecc = max(eccentric_duration, 0.2)
+    session.setdefault("concentric_times", []).append(conc)
+    session.setdefault("eccentric_times", []).append(ecc)
+
+    concentric_history = session["concentric_times"]
+    if len(concentric_history) <= 3:
+        session["baseline_concentric"] = sum(concentric_history) / len(concentric_history)
+        velocity_loss = 0.0
+    else:
+        base = session.get("baseline_concentric") or concentric_history[0]
+        velocity_loss = max(0.0, (conc - base) / max(base, 0.1))
+
+    session["last_velocity_loss"] = velocity_loss
+
+    if velocity_loss < 0.15:
+        rpe = 7.0
+        rir = 4
+    elif velocity_loss < 0.25:
+        rpe = 8.0
+        rir = 3
+    elif velocity_loss < 0.40:
+        rpe = 8.5
+        rir = 2
+    elif velocity_loss < 0.55:
+        rpe = 9.0
+        rir = 1
+    else:
+        rpe = 9.5
+        rir = 0
+
+    session["current_rpe"] = rpe
+    session["current_rir"] = rir
+
+    cadence_record = {
+        "rep": session["counter"],
+        "eccentric_s": round(ecc, 2),
+        "concentric_s": round(conc, 2),
+        "velocity_loss_pct": round(velocity_loss * 100, 1),
+        "estimated_rir": rir,
+        "estimated_rpe": rpe,
+    }
+    session.setdefault("rep_cadences", []).append(cadence_record)
+    return cadence_record
+
+
 def finish_rep(session, exercise_config, now):
     session["counter"] += 1
+
+    # Measure eccentric and concentric durations
+    eccentric = 1.0
     if session.get("down_t0"):
         eccentric = now - session["down_t0"]
-        session["eccentric_times"].append(eccentric)
         session["down_t0"] = None
-        if eccentric < 0.45 and now - session.get("last_tempo_cue", 0) > 8:
-            session["last_tempo_cue"] = now
-            speak("Slower on the way down")
-            session["feedback_msg"] = "Slow the lowering — control the eccentric"
-            session["feedback_until"] = now + 2.0
+
+    concentric = 1.0
+    if session.get("concentric_t0"):
+        concentric = now - session["concentric_t0"]
+        session["concentric_t0"] = None
+    else:
+        concentric = max(0.35, eccentric * 0.7)
+
+    cadence = compute_rep_cadence_and_fatigue(session, eccentric, concentric)
+
+    if eccentric < 0.45 and now - session.get("last_tempo_cue", 0) > 8:
+        session["last_tempo_cue"] = now
+        speak("Slower on the way down")
+        session["feedback_msg"] = "Slow the lowering — control the eccentric"
+        session["feedback_until"] = now + 2.0
 
     feedback_msg, is_good = evaluate_feedback(
         exercise_config, session["min_in_rep"], session["max_in_rep"], session["counter"]
@@ -689,6 +752,18 @@ def finish_rep(session, exercise_config, now):
     note_cue(session, feedback_msg, is_good, voice=session.get("voice", True))
     session["min_in_rep"] = {}
     session["max_in_rep"] = {}
+
+    # Fatigue Alert: When concentric velocity slows past 40% (muscular failure proximity)
+    if (
+        session["counter"] >= 4
+        and cadence["velocity_loss_pct"] >= 40.0
+        and not session.get("fatigue_alert_given")
+    ):
+        session["fatigue_alert_given"] = True
+        fatigue_cue = "Last rep was slow—great effort! Rest 2 minutes before your next set."
+        speak(fatigue_cue)
+        session["feedback_msg"] = fatigue_cue
+        session["feedback_until"] = now + 3.0
 
     if (
         len(session["recent_quality"]) >= 4
@@ -737,6 +812,8 @@ def update_rep_session(session, checks, exercise_config, now):
         candidate = "down"
 
     if candidate != stage:
+        if stage == "down" and candidate == "up" and not session.get("concentric_t0"):
+            session["concentric_t0"] = now
         if session.get("stage_candidate") == candidate:
             session["stage_candidate_count"] = session.get("stage_candidate_count", 0) + 1
         else:
@@ -758,12 +835,14 @@ def update_rep_session(session, checks, exercise_config, now):
             elif stage == "up" and new_stage == "down":
                 session["stage"] = "down"
                 session["down_t0"] = now
+                session["concentric_t0"] = None
                 session["min_in_rep"] = {n: v for n, v in checks.items() if v is not None}
                 session["max_in_rep"] = dict(session["min_in_rep"])
         else:
             if stage == "up" and new_stage == "down":
                 session["stage"] = "down"
                 session["down_t0"] = now
+                session["concentric_t0"] = None
                 session["min_in_rep"] = {n: v for n, v in checks.items() if v is not None}
                 session["max_in_rep"] = dict(session["min_in_rep"])
             elif stage == "down" and new_stage == "up":
@@ -911,6 +990,11 @@ def draw_hud(frame, session, checks, feedback_msg, exercise_config):
         cv2.putText(frame, f"Last lower: {ecc[-1]:.1f}s",
                     (frame.shape[1] - 220, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (200, 200, 200), 1)
 
+    if session.get("current_rpe") is not None:
+        conc_s = session["concentric_times"][-1] if session.get("concentric_times") else 1.0
+        rpe_txt = f"RPE: {session['current_rpe']:.1f} (RIR ~{session['current_rir']})  Conc: {conc_s:.1f}s"
+        cv2.putText(frame, rpe_txt, (frame.shape[1] - 340, 115), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 255, 255), 1)
+
     view = exercise_config.get("view", "")
     if view:
         hint = "SIDEWAYS to camera" if view == "side" else "FACE the camera"
@@ -929,6 +1013,8 @@ def draw_banner(frame, title, subtitle=""):
 
 def session_record(session, exercise_config):
     cues = sorted(session.get("cue_counts", {}).items(), key=lambda item: item[1], reverse=True)
+    cadences = session.get("rep_cadences", [])
+    max_loss = max([c.get("velocity_loss_pct", 0.0) for c in cadences], default=0.0)
     return {
         "exercise": exercise_config.get("display_name"),
         "exercise_id": exercise_config.get("id"),
@@ -940,6 +1026,13 @@ def session_record(session, exercise_config):
         "avg_eccentric": round(
             sum(session["eccentric_times"]) / len(session["eccentric_times"]), 2
         ) if session.get("eccentric_times") else None,
+        "avg_concentric": round(
+            sum(session["concentric_times"]) / len(session["concentric_times"]), 2
+        ) if session.get("concentric_times") else None,
+        "max_velocity_loss_pct": round(max_loss, 1),
+        "final_rpe": session.get("current_rpe"),
+        "final_rir": session.get("current_rir"),
+        "rep_cadences": cadences[-15:],
         "ended_reason": session.get("ended_reason"),
         "top_cues": [{"cue": cue, "count": count} for cue, count in cues[:5]],
         "worst_cue": session.get("worst_cue") or "",
@@ -966,6 +1059,10 @@ def draw_summary(frame, session, exercise_config):
             f"Reps: {record['reps']}",
             f"Good reps: {record['good_reps']}",
         ]
+        if record.get("final_rpe"):
+            lines.append(f"Final Effort: RPE {record['final_rpe']:.1f} (RIR ~{record['final_rir']})")
+        if record.get("max_velocity_loss_pct"):
+            lines.append(f"Max Velocity Loss: {record['max_velocity_loss_pct']}%")
     if record["top_cues"]:
         lines.append("Top cues:")
         for item in record["top_cues"][:4]:
@@ -983,6 +1080,8 @@ def print_summary(record):
         print(f"Hold: {record['hold_time']}s   good form: {record['good_time']}s")
     else:
         print(f"Reps: {record['reps']}   good: {record['good_reps']}")
+        if record.get("final_rpe"):
+            print(f"Final Effort: RPE {record['final_rpe']:.1f} (RIR ~{record['final_rir']})   Max Velocity Loss: {record.get('max_velocity_loss_pct', 0.0)}%")
     if record["top_cues"]:
         print("Top cues:")
         for item in record["top_cues"]:
@@ -1017,7 +1116,15 @@ def reset_session(exercise_config):
         "voice": True,
         "recent_quality": [],
         "eccentric_times": [],
+        "concentric_times": [],
+        "rep_cadences": [],
         "down_t0": None,
+        "concentric_t0": None,
+        "current_rpe": None,
+        "current_rir": None,
+        "last_velocity_loss": 0.0,
+        "baseline_concentric": None,
+        "fatigue_alert_given": False,
         "last_tempo_cue": 0,
         "ended_reason": None,
         "target_reps": 0,
@@ -1309,6 +1416,13 @@ def run_exercise(exercise_config, options=None):
                 print(f"Saved {path}")
             except OSError as exc:
                 print(f"Could not save history: {exc}")
+            try:
+                from common.handoff import write_handoff
+                from common.profile import load_profile
+                prof = load_profile() or {}
+                write_handoff(prof, extra={"last_session": record, "latest_report": record})
+            except Exception:
+                pass
 
         if wait_summary and last_frame is not None:
             draw_summary(last_frame, session, cfg)

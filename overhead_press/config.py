@@ -1,0 +1,55 @@
+EXERCISE_CONFIG = {
+    "display_name": "Overhead Press",
+    "mode": "reps",
+    "view": "side",
+    "initial_stage": "down",
+    "count_on": "reach_up",
+    "side_check": "elbow",
+    "set_size": 8,
+    "rest_seconds": 45,
+    "calibrate_seconds": 2.5,
+    "setup_hint": "Stand sideways or 45-deg. Start with dumbbells/barbell at collarbone height.",
+    "important_joints": ["wrist", "elbow", "shoulder", "hip"],
+    "calibrate_hint": "Hold weights at collarbone level with forearms vertical",
+    "not_visible_message": "Stand sideways so shoulders, elbows, and torso are visible",
+    "landmarks": {
+        "left": {"shoulder": 11, "elbow": 13, "wrist": 15, "hip": 23},
+        "right": {"shoulder": 12, "elbow": 14, "wrist": 16, "hip": 24},
+    },
+    "checks": {
+        "arm_extension": {
+            "type": "min_angle",
+            "points": ("shoulder", "elbow", "wrist"),
+            "down_threshold": 80,
+            "up_threshold": 155,
+        },
+        "torso_arch": {
+            "type": "vertical_angle",
+            "points": ("shoulder", "hip"),
+            "down_threshold": 24,
+            "up_threshold": None,
+            "direction": "above",
+        },
+    },
+    "primary_check": "arm_extension",
+    "depth_checks": ["arm_extension"],
+    "fault_checks": ["torso_arch"],
+    "feedback_rules": [
+        {
+            "require": {"arm_extension": True, "torso_arch": False},
+            "message": "Rep {count}: Strong lockout overhead ({side})!",
+            "counts_as_good": True,
+        },
+        {
+            "require": {"torso_arch": True},
+            "message": "Rep {count}: Lumbar arching - squeeze glutes and brace core, do not lean back",
+            "counts_as_good": False,
+        },
+        {
+            "require": {"arm_extension": False},
+            "message": "Rep {count}: Incomplete lockout - press weights straight overhead",
+            "counts_as_good": False,
+        },
+    ],
+    "default_message": "Rep {count}: Press weights fully overhead with braced core",
+}
