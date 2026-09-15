@@ -2,15 +2,19 @@ FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PORT=8000
+    PORT=8000 \
+    LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}"
 
 WORKDIR /app
 
 # Install Linux system dependencies for Debian 12 (Bookworm)
-# Note: libgl1-mesa-glx is obsolete in Debian 12 and replaced by libgl1
+# Includes libgl1, libegl1, libgles2, and mesa-dri required by MediaPipe PoseLandmarker on headless Linux
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libgl1 \
+    libegl1 \
+    libgles2 \
+    libgl1-mesa-dri \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
