@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants.dart';
+import '../../../core/sound_service.dart';
 import '../../../core/theme.dart';
 import '../../../data/services/api_service.dart';
 import '../../../data/services/websocket_service.dart';
@@ -15,8 +16,10 @@ class LiveWorkoutScreen extends StatefulWidget {
   State<LiveWorkoutScreen> createState() => _LiveWorkoutScreenState();
 }
 
-class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
+class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
+    with TickerProviderStateMixin {
   final WebSocketService _wsService = WebSocketService();
+  final SoundService _soundService = SoundService();
   StreamSubscription<WorkoutStreamEvent>? _subscription;
 
   int _reps = 0;
@@ -29,10 +32,45 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
   int _elapsedSeconds = 0;
   Timer? _timer;
   bool _isFinished = false;
+  bool _isAudioMuted = false;
+
+  // Animation Controllers for Rep Pulse & Fault Shake
+  late AnimationController _repPulseController;
+  late Animation<double> _repPulseScale;
+
+  late AnimationController _faultShakeController;
+  late Animation<double> _faultShakeOffset;
 
   @override
   void initState() {
     super.initState();
+    _soundService.initialize();
+
+    // Pulse animation: 1.0 -> 1.25 -> 1.0
+    _repPulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 320),
+    );
+    _repPulseScale = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 1.25).chain(CurveTween(curve: Curves.easeOutCubic)),
+        weight: 40,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.25, end: 1.0).chain(CurveTween(curve: Curves.easeInQuad)),
+        weight: 60,
+      ),
+    ]).animate(_repPulseController);
+
+    // Fault shake animation: oscillates left and right
+    _faultShakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _faultShakeOffset = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _faultShakeController, curve: Curves.easeInOut),
+    );
+
     _startSession();
   }
 
@@ -44,6 +82,22 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
           if (event.error != null) {
             _statusError = event.error;
           } else {
+            // Check if a new repetition was completed
+            if (event.counter > _reps) {
+              _repPulseController.forward(from: 0.0);
+              if (!_isAudioMuted) {
+                _soundService.playRepChime();
+              }
+            }
+
+            // Check if new faults appeared
+            if (event.faults.isNotEmpty && _activeFaults.isEmpty) {
+              _faultShakeController.forward(from: 0.0);
+              if (!_isAudioMuted) {
+                _soundService.playFaultAlert();
+              }
+            }
+
             _reps = event.counter;
             _stage = event.stage.toUpperCase();
             _activeFaults = event.faults;
@@ -65,6 +119,8 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
     _timer?.cancel();
     _subscription?.cancel();
     _wsService.dispose();
+    _repPulseController.dispose();
+    _faultShakeController.dispose();
     super.dispose();
   }
 
@@ -78,6 +134,10 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
     setState(() => _isFinished = true);
     _timer?.cancel();
     _wsService.disconnect();
+
+    if (!_isAudioMuted) {
+      _soundService.playWorkoutComplete();
+    }
 
     try {
       await ApiService().uploadWorkoutSummary(
@@ -207,6 +267,17 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
           ),
         ),
         actions: [
+          // Audio Mute/Unmute Toggle
+          IconButton(
+            icon: Icon(
+              _isAudioMuted ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
+            tooltip: _isAudioMuted ? 'Unmute audio cues' : 'Mute audio cues',
+            onPressed: () => setState(() => _isAudioMuted = !_isAudioMuted),
+          ),
+          // Timer Widget
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             margin: const EdgeInsets.only(right: 16),
@@ -287,83 +358,96 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
                       ),
                     ),
 
-                    // Live Form Alert Banner
+                    // Live Form Alert Banner with Shake Animation
                     if (_activeFaults.isNotEmpty)
                       Positioned(
                         top: 16,
                         left: 16,
                         right: 16,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: AppTheme.accentCoral.withOpacity(0.95),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppTheme.accentCoral.withOpacity(0.35),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 22),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  'FORM ALERT: ${_activeFaults.join(", ").toUpperCase()}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 13,
+                        child: AnimatedBuilder(
+                          animation: _faultShakeOffset,
+                          builder: (context, child) {
+                            final double offset = math_sin(_faultShakeOffset.value * 3.14159 * 4) * 8.0;
+                            return Transform.translate(
+                              offset: Offset(offset, 0),
+                              child: child,
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: AppTheme.accentCoral.withOpacity(0.95),
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.accentCoral.withOpacity(0.35),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 22),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    'FORM ALERT: ${_activeFaults.join(", ").toUpperCase()}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
 
-                    // Top-Left Rep Counter Card
+                    // Top-Left Rep Counter Card with Pulse Scale Animation
                     Positioned(
                       top: _activeFaults.isNotEmpty ? 74 : 16,
                       left: 16,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFAF9F5),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 14,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              '$_reps',
-                              style: const TextStyle(
-                                fontSize: 40,
-                                fontWeight: FontWeight.w900,
-                                color: AppTheme.primary,
-                                height: 1.0,
+                      child: ScaleTransition(
+                        scale: _repPulseScale,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFAF9F5),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 14,
+                                offset: const Offset(0, 4),
                               ),
-                            ),
-                            const SizedBox(height: 2),
-                            const Text(
-                              'REPS',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: AppTheme.textSecondary,
-                                letterSpacing: 0.8,
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                '$_reps',
+                                style: const TextStyle(
+                                  fontSize: 40,
+                                  fontWeight: FontWeight.w900,
+                                  color: AppTheme.primary,
+                                  height: 1.0,
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 2),
+                              const Text(
+                                'REPS',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.textSecondary,
+                                  letterSpacing: 0.8,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -527,5 +611,17 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
         ],
       ),
     );
+  }
+
+  static double math_sin(double radians) {
+    return math_sin_internal(radians);
+  }
+
+  static double math_sin_internal(double r) {
+    // Fast sine approximation or standard
+    var x = r % (2 * 3.141592653589793);
+    if (x < -3.141592653589793) x += 2 * 3.141592653589793;
+    if (x > 3.141592653589793) x -= 2 * 3.141592653589793;
+    return x * (1.27323954 - 0.405284735 * (x < 0 ? -x : x));
   }
 }

@@ -1,17 +1,40 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/sound_service.dart';
 import '../../../core/theme.dart';
 import '../../widgets/fitpath_logo.dart';
 import '../../widgets/squircle_icon_card.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isCompact = size.height < 700;
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
 
+class _WelcomeScreenState extends State<WelcomeScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _floatController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Gentle 3-second floating loop for the 4 squircle feature cards
+    _floatController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3000),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _floatController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: Container(
@@ -65,99 +88,109 @@ class WelcomeScreen extends StatelessWidget {
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     final maxHeight = constraints.maxHeight;
-                    final cardOffset = maxHeight * 0.18;
 
                     return Center(
                       child: SizedBox(
                         width: 340,
                         height: maxHeight,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          clipBehavior: Clip.none,
-                          children: [
-                            // Center Athlete Image Hero
-                            Positioned(
-                              top: 20,
-                              bottom: 20,
-                              child: Container(
-                                width: 220,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(110),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFF1B224B).withOpacity(0.08),
-                                      blurRadius: 30,
-                                      offset: const Offset(0, 10),
-                                    ),
-                                  ],
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(110),
-                                  child: Image.asset(
-                                    'assets/images/athlete_hero.jpg',
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      // Graceful fallback if asset is loading or missing
-                                      return Container(
-                                        color: AppTheme.surfaceWarm,
-                                        child: const Center(
-                                          child: Icon(
-                                            Icons.directions_run_rounded,
-                                            size: 90,
-                                            color: AppTheme.primaryLight,
-                                          ),
+                        child: AnimatedBuilder(
+                          animation: _floatController,
+                          builder: (context, child) {
+                            final double animVal = _floatController.value;
+                            // Sinusoidal offsets with phase differences
+                            final double float1 = math.sin(animVal * math.pi) * 8.0;
+                            final double float2 = math.cos(animVal * math.pi) * 7.0;
+                            final double float3 = math.sin((animVal + 0.5) * math.pi) * 8.0;
+                            final double float4 = math.cos((animVal + 0.5) * math.pi) * 7.0;
+
+                            return Stack(
+                              alignment: Alignment.center,
+                              clipBehavior: Clip.none,
+                              children: [
+                                // Center Athlete Image Hero
+                                Positioned(
+                                  top: 20,
+                                  bottom: 20,
+                                  child: Container(
+                                    width: 220,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(110),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(0xFF1B224B).withOpacity(0.08),
+                                          blurRadius: 30,
+                                          offset: const Offset(0, 10),
                                         ),
-                                      );
-                                    },
+                                      ],
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(110),
+                                      child: Image.asset(
+                                        'assets/images/athlete_hero.jpg',
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Container(
+                                            color: AppTheme.surfaceWarm,
+                                            child: const Center(
+                                              child: Icon(
+                                                Icons.directions_run_rounded,
+                                                size: 90,
+                                                color: AppTheme.primaryLight,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
 
-                            // Floating Card 1: Top-Left (Dumbbell - Workout Engine)
-                            Positioned(
-                              left: 8,
-                              top: maxHeight * 0.22,
-                              child: const SquircleIconCard(
-                                icon: Icons.fitness_center_rounded,
-                                size: 58,
-                                iconSize: 26,
-                              ),
-                            ),
+                                // Floating Card 1: Top-Left (Dumbbell - Workout Engine)
+                                Positioned(
+                                  left: 8,
+                                  top: (maxHeight * 0.22) + float1,
+                                  child: const SquircleIconCard(
+                                    icon: Icons.fitness_center_rounded,
+                                    size: 58,
+                                    iconSize: 26,
+                                  ),
+                                ),
 
-                            // Floating Card 2: Top-Right (Line Chart - PRs & Growth)
-                            Positioned(
-                              right: 8,
-                              top: maxHeight * 0.20,
-                              child: const SquircleIconCard(
-                                icon: Icons.show_chart_rounded,
-                                size: 58,
-                                iconSize: 26,
-                              ),
-                            ),
+                                // Floating Card 2: Top-Right (Line Chart - PRs & Growth)
+                                Positioned(
+                                  right: 8,
+                                  top: (maxHeight * 0.20) + float2,
+                                  child: const SquircleIconCard(
+                                    icon: Icons.show_chart_rounded,
+                                    size: 58,
+                                    iconSize: 26,
+                                  ),
+                                ),
 
-                            // Floating Card 3: Bottom-Left (Nutrition Bowl - Meal Vision)
-                            Positioned(
-                              left: 14,
-                              bottom: maxHeight * 0.22,
-                              child: const SquircleIconCard(
-                                icon: Icons.restaurant_rounded,
-                                size: 58,
-                                iconSize: 26,
-                              ),
-                            ),
+                                // Floating Card 3: Bottom-Left (Nutrition Bowl - Meal Vision)
+                                Positioned(
+                                  left: 14,
+                                  bottom: (maxHeight * 0.22) + float3,
+                                  child: const SquircleIconCard(
+                                    icon: Icons.restaurant_rounded,
+                                    size: 58,
+                                    iconSize: 26,
+                                  ),
+                                ),
 
-                            // Floating Card 4: Bottom-Right (Vision Scanner - CV Reticle)
-                            Positioned(
-                              right: 14,
-                              bottom: maxHeight * 0.20,
-                              child: const SquircleIconCard(
-                                icon: Icons.filter_center_focus_rounded,
-                                size: 58,
-                                iconSize: 26,
-                              ),
-                            ),
-                          ],
+                                // Floating Card 4: Bottom-Right (Vision Scanner - CV Reticle)
+                                Positioned(
+                                  right: 14,
+                                  bottom: (maxHeight * 0.20) + float4,
+                                  child: const SquircleIconCard(
+                                    icon: Icons.filter_center_focus_rounded,
+                                    size: 58,
+                                    iconSize: 26,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ),
                     );
@@ -171,7 +204,7 @@ class WelcomeScreen extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Gradient Pill "Get Started ->"
+                    // Gradient Pill "Get Started ->" with touch micro-feedback
                     Container(
                       width: double.infinity,
                       height: 56,
@@ -183,7 +216,10 @@ class WelcomeScreen extends StatelessWidget {
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: () => context.go('/auth'),
+                          onTap: () {
+                            SoundService().playTapFeedback();
+                            context.go('/auth');
+                          },
                           borderRadius: BorderRadius.circular(30),
                           splashColor: Colors.white.withOpacity(0.15),
                           child: const Padding(
@@ -217,7 +253,10 @@ class WelcomeScreen extends StatelessWidget {
 
                     // "Already have an account?" prompt
                     GestureDetector(
-                      onTap: () => context.go('/auth?mode=login'),
+                      onTap: () {
+                        SoundService().playTapFeedback();
+                        context.go('/auth?mode=login');
+                      },
                       child: const Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text(

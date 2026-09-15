@@ -5,7 +5,9 @@ import 'package:fitpath_frontend/ui/features/onboarding/welcome_screen.dart';
 void main() {
   testWidgets('FitPathApp loads WelcomeScreen with headline and Get Started', (WidgetTester tester) async {
     await tester.pumpWidget(const FitPathApp());
-    await tester.pumpAndSettle();
+    // Pump frames for initial render (WelcomeScreen has continuous zero-g floating animation)
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
 
     // Verify WelcomeScreen is rendered as initial screen
     expect(find.byType(WelcomeScreen), findsOneWidget);

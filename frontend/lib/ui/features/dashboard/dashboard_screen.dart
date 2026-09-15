@@ -314,14 +314,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: LinearProgressIndicator(
-                              value: 0.65,
-                              minHeight: 10,
-                              backgroundColor: AppTheme.surfaceWarm,
-                              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primary),
-                            ),
+                          TweenAnimationBuilder<double>(
+                            tween: Tween<double>(begin: 0.0, end: 0.65),
+                            duration: const Duration(milliseconds: 900),
+                            curve: Curves.easeOutCubic,
+                            builder: (context, progress, _) {
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: LinearProgressIndicator(
+                                  value: progress,
+                                  minHeight: 10,
+                                  backgroundColor: AppTheme.surfaceWarm,
+                                  valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primary),
+                                ),
+                              );
+                            },
                           ),
                           const SizedBox(height: 10),
                           const Row(
