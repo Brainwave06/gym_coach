@@ -18,7 +18,55 @@ from common.models import resolve_model_path
 
 from gym_ai import arun_pipeline, generate_personalized_plan
 
-app = FastAPI(title="AI Exercise Coach API with Gym AI Chatbot")
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI(title="FitPath AI Exercise Coach & Gym AI Backend")
+
+# Enable universal CORS for Flutter Mobile, Flutter Web, and Emulators
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+class RegisterRequest(BaseModel):
+    email: str
+    username: str
+    password: str
+    full_name: Optional[str] = ""
+
+
+class LoginRequest(BaseModel):
+    username_or_email: str
+    password: str
+
+
+class ProfileUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    height_cm: Optional[float] = None
+    weight_kg: Optional[float] = None
+    goal: Optional[str] = None
+    fitness_level: Optional[str] = None
+    dietary_preferences: Optional[str] = None
+    injuries: Optional[List[str]] = None
+
+
+class WorkoutSummaryUploadRequest(BaseModel):
+    user_id: Optional[str] = "default"
+    exercise_id: str
+    duration_sec: int
+    total_reps: int
+    form_accuracy_pct: Optional[float] = 100.0
+    avg_cadence_sec: Optional[float] = 2.0
+    fatigue_velocity_loss_pct: Optional[float] = 0.0
+    faults: Optional[List[str]] = None
+    weight_kg: Optional[float] = 0.0
+    notes: Optional[str] = ""
 
 
 class ChatRequest(BaseModel):
@@ -279,6 +327,235 @@ def get_conversations_endpoint(limit: int = 20):
     from gym_ai.memory.storage import get_recent_messages
     messages = get_recent_messages(limit=limit)
     return {"status": "success", "messages": messages}
+
+
+# ==========================================
+# User Authentication Endpoints
+# ==========================================
+
+@app.post("/auth/register")
+def register_endpoint(req: RegisterRequest):
+    """Register a new user and return JWT access token."""
+    import uuid
+    from common.auth import create_access_token, hash_password
+    from gym_ai.memory.storage import create_user, get_user_by_email_or_username
+
+    if not req.email or "@" not in req.email:
+        raise HTTPException(status_code=400, detail="A valid email address is required.")
+    if len(req.password) < 4:
+        raise HTTPException(status_code=400, detail="Password must be at least 4 characters.")
+
+    existing = get_user_by_email_or_username(req.email)
+    if not existing:
+        existing = get_user_by_email_or_username(req.username)
+    if existing:
+        raise HTTPException(status_code=400, detail="A user with this email or username already exists.")
+
+    user_id = f"usr_{uuid.uuid4().hex[:12]}"
+    hashed, salt = hash_password(req.password)
+    user = create_user(
+        user_id=user_id,
+        email=req.email,
+        username=req.username,
+        hashed_password=hashed,
+        salt=salt,
+        full_name=req.full_name or req.username,
+    )
+    token = create_access_token({"user_id": user_id, "email": user["email"], "username": user["username"]})
+    return {
+        "status": "success",
+        "access_token": token,
+        "token_type": "bearer",
+        "user": user,
+    }
+
+
+@app.post("/auth/login")
+def login_endpoint(req: LoginRequest):
+    """Authenticate user with username/email and password."""
+    from common.auth import create_access_token, verify_password
+    from gym_ai.memory.storage import get_user_by_email_or_username
+
+    user = get_user_by_email_or_username(req.username_or_email)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid username/email or password.")
+
+    if not verify_password(req.password, user["hashed_password"], user["salt"]):
+        raise HTTPException(status_code=401, detail="Invalid username/email or password.")
+
+    token = create_access_token({"user_id": user["id"], "email": user["email"], "username": user["username"]})
+    return {
+        "status": "success",
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": user["id"],
+            "email": user["email"],
+            "username": user["username"],
+            "full_name": user["full_name"],
+        },
+    }
+
+
+@app.get("/auth/me")
+def get_current_user_endpoint(request: Request):
+    """Retrieve profile of the currently authenticated user from Bearer token."""
+    from common.auth import get_current_user_from_header
+    from gym_ai.memory.storage import get_user_by_id
+
+    auth_header = request.headers.get("Authorization")
+    payload = get_current_user_from_header(auth_header)
+    if not payload:
+        return {
+            "status": "guest",
+            "user": {"id": "default", "username": "guest", "full_name": "Guest Athlete"},
+        }
+    user = get_user_by_id(payload["user_id"])
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found.")
+    return {
+        "status": "authenticated",
+        "user": {
+            "id": user["id"],
+            "email": user["email"],
+            "username": user["username"],
+            "full_name": user["full_name"],
+        },
+    }
+
+
+# ==========================================
+# Athlete Profile & Biometrics Endpoints
+# ==========================================
+
+@app.get("/profile")
+def get_profile_endpoint():
+    """Retrieve athlete profile merged with real-time computed biometrics."""
+    from common.profile import calculate_biometrics, load_profile
+    profile = load_profile() or {}
+    biometrics = calculate_biometrics(profile)
+    return {
+        "status": "success",
+        "profile": profile,
+        "biometrics": biometrics,
+    }
+
+
+@app.put("/profile")
+@app.post("/profile")
+def update_profile_endpoint(req: ProfileUpdateRequest):
+    """Update athlete profile fields, recompute biometrics, and track body weight history."""
+    from common.profile import calculate_biometrics, load_profile, save_profile
+    from gym_ai.memory.storage import log_weight_entry
+
+    profile = load_profile() or {}
+    update_data = req.model_dump(exclude_unset=True)
+    for k, v in update_data.items():
+        if v is not None:
+            profile[k] = v
+
+    save_profile(profile)
+
+    if req.weight_kg is not None:
+        try:
+            log_weight_entry(weight_kg=req.weight_kg, notes="Profile update")
+        except Exception:
+            pass
+
+    biometrics = calculate_biometrics(profile)
+    return {
+        "status": "success",
+        "profile": profile,
+        "biometrics": biometrics,
+    }
+
+
+# ==========================================
+# Workout Summary & Session Handoff Endpoints
+# ==========================================
+
+@app.post("/workout/summary")
+def upload_workout_summary_endpoint(req: WorkoutSummaryUploadRequest):
+    """
+    Receive completed workout summary from mobile/CV client.
+    Persists session to SQLite, updates history.jsonl, and writes coach_handoff.json.
+    """
+    import uuid
+    from datetime import datetime
+    from common.history import append_session
+    from common.handoff import write_handoff
+    from common.profile import load_profile
+    from gym_ai.memory.storage import log_workout_session, log_personal_record
+
+    session_id = f"sess_{uuid.uuid4().hex[:12]}"
+    logged = log_workout_session(
+        session_id=session_id,
+        user_id=req.user_id or "default",
+        exercise_id=req.exercise_id,
+        duration_sec=req.duration_sec,
+        total_reps=req.total_reps,
+        form_accuracy_pct=req.form_accuracy_pct or 100.0,
+        avg_cadence_sec=req.avg_cadence_sec or 2.0,
+        fatigue_velocity_loss_pct=req.fatigue_velocity_loss_pct or 0.0,
+        faults=req.faults or [],
+        notes=req.notes or "",
+    )
+
+    history_record = {
+        "kind": "workout",
+        "exercise": req.exercise_id,
+        "reps": req.total_reps,
+        "duration_sec": req.duration_sec,
+        "accuracy": req.form_accuracy_pct,
+        "cadence_sec": req.avg_cadence_sec,
+        "fatigue_loss_pct": req.fatigue_velocity_loss_pct,
+        "faults": req.faults or [],
+        "saved_at": datetime.now().isoformat(timespec="seconds"),
+    }
+    try:
+        append_session(history_record)
+    except Exception:
+        pass
+
+    profile = load_profile() or {}
+    try:
+        write_handoff(
+            profile,
+            extra={
+                "last_session": history_record,
+                "status": "completed",
+            },
+        )
+    except Exception:
+        pass
+
+    pr_logged = None
+    if req.weight_kg and req.weight_kg > 0 and req.total_reps > 0:
+        try:
+            pr_logged = log_personal_record(
+                exercise_name=req.exercise_id,
+                weight_kg=req.weight_kg,
+                reps=req.total_reps,
+                notes=f"Auto-logged from session {session_id}",
+            )
+        except Exception:
+            pass
+
+    return {
+        "status": "success",
+        "session": logged,
+        "pr": pr_logged,
+        "handoff_ready": True,
+    }
+
+
+@app.get("/workout/history")
+def get_workout_history_endpoint(user_id: Optional[str] = None, limit: int = 20):
+    """Retrieve athlete workout history from SQLite."""
+    from gym_ai.memory.storage import get_workout_sessions
+    sessions = get_workout_sessions(user_id=user_id, limit=limit)
+    return {"status": "success", "history": sessions}
+
 
 @app.websocket("/stream/{exercise_id}")
 async def websocket_endpoint(websocket: WebSocket, exercise_id: str):

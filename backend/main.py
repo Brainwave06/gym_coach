@@ -1,7 +1,13 @@
+"""
+Cloud Backend API Entrypoint - FitPath.
+Unifies all Gym AI, computer vision streaming, authentication, athlete profiles,
+and multimodal vision capabilities into a single production server.
+"""
+
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from fastapi import FastAPI, HTTPException
+from fastapi import HTTPException
 from pydantic import BaseModel
 
 # Ensure root workspace is importable
@@ -9,60 +15,44 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from gym_ai import arun_pipeline, generate_personalized_plan
+# Import full production FastAPI application
+from api import app, WorkoutSummaryUploadRequest, upload_workout_summary_endpoint
 
-app = FastAPI(title="Cloud Backend API - FitPath")
-
-
-class WorkoutSummary(BaseModel):
-    user_id: str
-    duration_min: int
-    total_reps: int
-    overall_quality: float
-
-
-class ChatRequest(BaseModel):
-    query: str
-    chat_history: Optional[List[Dict[str, Any]]] = None
-    user_id: Optional[str] = None
+# Expose backward-compatible aliases for cloud deployment
+class CloudWorkoutSummary(BaseModel):
+    duration_min: Optional[int] = 10
+    total_reps: Optional[int] = 20
+    overall_quality: Optional[float] = 90.0
+    exercise_id: Optional[str] = "squat"
+    notes: Optional[str] = ""
 
 
-@app.get("/")
-def read_root():
-    return {"message": "Cloud Backend API is running with Gym AI integrated."}
-
-
-@app.post("/users/{user_id}/workout_summary")
-def upload_summary(user_id: str, summary: WorkoutSummary):
+@app.post("/users/{user_id}/workout_summary", tags=["cloud_legacy"])
+def upload_legacy_summary(user_id: str, summary: CloudWorkoutSummary):
     """
-    Endpoint for receiving the summary.json uploaded after a workout.
+    Legacy cloud summary route forwarding into unified workout session storage.
     """
-    return {"status": "success", "received_for": user_id, "summary": summary.model_dump()}
+    req = WorkoutSummaryUploadRequest(
+        user_id=user_id,
+        exercise_id=summary.exercise_id or "general_workout",
+        duration_sec=(summary.duration_min or 10) * 60,
+        total_reps=summary.total_reps or 0,
+        form_accuracy_pct=summary.overall_quality or 90.0,
+        notes=summary.notes or "Legacy cloud summary upload",
+    )
+    return upload_workout_summary_endpoint(req)
 
 
-@app.post("/chatbot/generate_plan")
-def generate_plan(user_id: str):
+@app.post("/chatbot/chat", tags=["cloud_legacy"])
+async def chatbot_chat_legacy(req: Dict[str, Any]):
     """
-    Endpoint to trigger the LLM to read the athlete handoff and generate tomorrow's workout.
+    Legacy cloud chatbot route forwarding to pipeline.
     """
+    from gym_ai import arun_pipeline
+    query = req.get("query", "")
+    history = req.get("chat_history")
     try:
-        plan = generate_personalized_plan()
-        return {"status": "success", "user_id": user_id, "plan": plan}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/chatbot/chat")
-async def chatbot_chat(req: ChatRequest):
-    """
-    Direct cloud chatbot endpoint.
-    """
-    try:
-        answer = await arun_pipeline(
-            query=req.query,
-            chat_history=req.chat_history,
-            stream=False,
-        )
+        answer = await arun_pipeline(query=query, chat_history=history, stream=False)
         return {"status": "success", "answer": answer}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

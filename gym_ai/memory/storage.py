@@ -94,6 +94,36 @@ def init_db() -> None:
                 notes TEXT
             )
         """)
+
+        # 6. Users & Authentication
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id TEXT PRIMARY KEY,
+                email TEXT UNIQUE NOT NULL,
+                username TEXT UNIQUE NOT NULL,
+                hashed_password TEXT NOT NULL,
+                salt TEXT NOT NULL,
+                full_name TEXT,
+                created_at TEXT NOT NULL
+            )
+        """)
+
+        # 7. Workout Sessions
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS workout_sessions (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                exercise_id TEXT NOT NULL,
+                duration_sec INTEGER NOT NULL,
+                total_reps INTEGER NOT NULL,
+                form_accuracy_pct REAL,
+                avg_cadence_sec REAL,
+                fatigue_velocity_loss_pct REAL,
+                faults_json TEXT,
+                notes TEXT,
+                created_at TEXT NOT NULL
+            )
+        """)
         conn.commit()
 
 
@@ -320,3 +350,166 @@ def build_memory_context_prompt(user_id: str = "default") -> str:
             )
 
     return "\n".join(lines)
+
+
+# ==========================================
+# User Account & Auth Storage
+# ==========================================
+
+def create_user(
+    user_id: str,
+    email: str,
+    username: str,
+    hashed_password: str,
+    salt: str,
+    full_name: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Create a new user account in SQLite."""
+    init_db()
+    now_iso = datetime.now().isoformat(timespec="seconds")
+    with _get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO users (id, email, username, hashed_password, salt, full_name, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (user_id, email.lower().strip(), username.strip(), hashed_password, salt, full_name or username, now_iso),
+        )
+        conn.commit()
+    return {
+        "id": user_id,
+        "email": email.lower().strip(),
+        "username": username.strip(),
+        "full_name": full_name or username,
+        "created_at": now_iso,
+    }
+
+
+def get_user_by_email_or_username(identifier: str) -> Optional[Dict[str, Any]]:
+    """Look up a user record by email or username."""
+    init_db()
+    clean_id = identifier.strip().lower()
+    with _get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT * FROM users
+            WHERE lower(email) = ? OR lower(username) = ?
+            LIMIT 1
+            """,
+            (clean_id, clean_id),
+        )
+        row = cursor.fetchone()
+        return dict(row) if row else None
+
+
+def get_user_by_id(user_id: str) -> Optional[Dict[str, Any]]:
+    """Look up a user record by primary key user_id."""
+    init_db()
+    with _get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE id = ? LIMIT 1", (user_id,))
+        row = cursor.fetchone()
+        return dict(row) if row else None
+
+
+# ==========================================
+# Workout Session History Storage
+# ==========================================
+
+def log_workout_session(
+    session_id: str,
+    user_id: str,
+    exercise_id: str,
+    duration_sec: int,
+    total_reps: int,
+    form_accuracy_pct: float = 100.0,
+    avg_cadence_sec: float = 2.0,
+    fatigue_velocity_loss_pct: float = 0.0,
+    faults: Optional[List[str]] = None,
+    notes: str = "",
+) -> Dict[str, Any]:
+    """Store completed mobile or CV workout session."""
+    init_db()
+    now_iso = datetime.now().isoformat(timespec="seconds")
+    faults_list = faults or []
+    with _get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO workout_sessions (
+                id, user_id, exercise_id, duration_sec, total_reps,
+                form_accuracy_pct, avg_cadence_sec, fatigue_velocity_loss_pct,
+                faults_json, notes, created_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                session_id,
+                user_id,
+                exercise_id,
+                int(duration_sec),
+                int(total_reps),
+                float(form_accuracy_pct),
+                float(avg_cadence_sec),
+                float(fatigue_velocity_loss_pct),
+                json.dumps(faults_list),
+                notes,
+                now_iso,
+            ),
+        )
+        conn.commit()
+    return {
+        "session_id": session_id,
+        "user_id": user_id,
+        "exercise_id": exercise_id,
+        "duration_sec": duration_sec,
+        "total_reps": total_reps,
+        "form_accuracy_pct": form_accuracy_pct,
+        "avg_cadence_sec": avg_cadence_sec,
+        "fatigue_velocity_loss_pct": fatigue_velocity_loss_pct,
+        "faults": faults_list,
+        "notes": notes,
+        "created_at": now_iso,
+    }
+
+
+def get_workout_sessions(
+    user_id: Optional[str] = None,
+    limit: int = 20,
+) -> List[Dict[str, Any]]:
+    """Retrieve recent workout sessions ordered by newest first."""
+    init_db()
+    with _get_connection() as conn:
+        cursor = conn.cursor()
+        if user_id:
+            cursor.execute(
+                """
+                SELECT * FROM workout_sessions
+                WHERE user_id = ?
+                ORDER BY created_at DESC
+                LIMIT ?
+                """,
+                (user_id, limit),
+            )
+        else:
+            cursor.execute(
+                """
+                SELECT * FROM workout_sessions
+                ORDER BY created_at DESC
+                LIMIT ?
+                """,
+                (limit,),
+            )
+        rows = cursor.fetchall()
+        results = []
+        for r in rows:
+            d = dict(r)
+            try:
+                d["faults"] = json.loads(d.get("faults_json") or "[]")
+            except Exception:
+                d["faults"] = []
+            results.append(d)
+        return results
+
