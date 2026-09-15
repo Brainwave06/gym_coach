@@ -1,0 +1,10 @@
+DOCUMENT_TITLE: Female Menstrual Cycle and Training Considerations
+CATEGORY: Sports Physiology
+
+1. MENSTRUAL CYCLE PHASES:
+- Follicular Phase (Days 1-14): Estrogen is high, core temperature is normal. Generally characterized by higher pain tolerance, better insulin sensitivity, and optimal capacity for heavy strength training and high-intensity workloads.
+- Luteal Phase (Days 15-28): Progesterone rises, core temperature increases, and baseline metabolic rate may slightly elevate (100-300 kcal/day). Insulin sensitivity drops slightly. Athletes may feel increased fatigue and perceive heavy loads as harder (higher RPE).
+
+2. RED-S (Relative Energy Deficiency in Sport):
+- Severe prolonged caloric deficits in female athletes can lead to hypothalamic amenorrhea (loss of menstruation), drastic drops in bone mineral density (osteopenia/osteoporosis), and immune suppression.
+- Prevention: Ensure adequate caloric availability and maintain dietary fat intake above 25% of total calories to support endocrine function.

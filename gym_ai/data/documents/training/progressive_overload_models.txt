@@ -1,0 +1,15 @@
+DOCUMENT_TITLE: Progressive Overload and Load Management
+CATEGORY: Training Methodology
+
+1. PROGRESSIVE OVERLOAD METHODS:
+- Load Progression: Increasing weight on the bar while maintaining form.
+- Rep Progression: Performing more repetitions with the same weight.
+- Set Progression: Adding working sets.
+- Technical Progression: Improving form or increasing Time Under Tension (TUT).
+
+2. DOUBLE PROGRESSION MODEL:
+- Select a rep range (e.g., 8-12 reps). Use a fixed weight until you can hit the top of the range (12 reps) for all sets. Once achieved, increase the weight by 2.5-5% and build reps back up from 8.
+
+3. EXERCISE SELECTION:
+- Compound Movements: Squats, Deadlifts, Bench Presses. High systemic fatigue, foundation for overall mass.
+- Isolation Movements: Curls, Extensions. Low systemic fatigue, targeted muscle failure.

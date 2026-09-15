@@ -1,0 +1,10 @@
+DOCUMENT_TITLE: Intermittent Fasting and Ketogenic Diets in Sports
+CATEGORY: Specific Diets
+
+1. INTERMITTENT FASTING (IF - 16:8 Protocol):
+- Hypertrophy Context: Makes hitting high caloric/protein targets difficult due to the compressed eating window. Reduces the number of MPS pulses per day.
+- Fasted Training: Training completely fasted elevates cortisol and muscle breakdown. If training fasted, consuming 10g of Essential Amino Acids (EAAs) or Whey Protein pre-workout protects Lean Body Mass without disrupting fat oxidation significantly.
+
+2. KETOGENIC DIET (<50g Carbs/day):
+- Physiology: Shifts the body from glycolysis to fat oxidation (ketones). 
+- Performance Impact: Highly detrimental to high-intensity, anaerobic activities (like 8-12 rep heavy lifting or sprinting) which rely exclusively on glucose. Best suited for ultra-endurance athletes or sedentary fat-loss phases.

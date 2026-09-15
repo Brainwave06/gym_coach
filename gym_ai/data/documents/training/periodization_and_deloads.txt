@@ -1,0 +1,10 @@
+DOCUMENT_TITLE: Periodization Strategies and Deload Protocols
+CATEGORY: Advanced Training
+
+1. PERIODIZATION MODELS:
+- Linear Periodization: Progressively increasing intensity (load) while decreasing volume (reps/sets) over a macrocycle (e.g., weeks 1-4: 10 reps, weeks 5-8: 6 reps, weeks 9-12: 3 reps).
+- Daily Undulating Periodization (DUP): Altering volume and intensity within the microcycle (e.g., Monday: Hypertrophy 3x10, Wednesday: Power 5x3, Friday: Strength 4x5). Highly effective for advanced lifters to prevent staleness.
+
+2. DELOAD PROTOCOLS:
+- Purpose: Dissipate accumulated Central Nervous System (CNS) and connective tissue fatigue (managing Maximum Recoverable Volume - MRV).
+- Execution: Every 4 to 8 weeks, reduce total training volume (sets) by 30-50% and intensity (load) by 10-20% for exactly one microcycle (1 week).

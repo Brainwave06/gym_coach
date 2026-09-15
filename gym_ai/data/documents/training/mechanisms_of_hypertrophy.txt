@@ -1,0 +1,16 @@
+DOCUMENT_TITLE: Mechanisms of Hypertrophy and Training Volume
+CATEGORY: Biomechanics & Training
+
+1. HYPERTROPHY MECHANISMS:
+- Mechanical Tension (Primary Driver): Achieved by lifting heavy loads through a full Range of Motion (ROM).
+- Metabolic Stress: Achieved through higher reps and restricted blood flow.
+- Muscle Damage: A byproduct, not a primary goal.
+
+2. TRAINING VOLUME TARGETS (Per Muscle Group/Week):
+- Maintenance Volume (MV): 4-6 sets.
+- Minimum Effective Volume (MEV): 8-10 sets.
+- Maximum Adaptive Volume (MAV): 12-20 sets.
+- Maximum Recoverable Volume (MRV): Typically 20+ sets, beyond which performance degrades.
+
+3. INTENSITY (RPE/RIR):
+- Sets should be taken to 1-3 Reps in Reserve (RIR) or an RPE of 7-9 to ensure sufficient motor unit recruitment.

@@ -1,0 +1,11 @@
+DOCUMENT_TITLE: Hydration Kinetics and Electrolyte Balance
+CATEGORY: Sports Nutrition
+
+1. HYDRATION TARGETS:
+- Baseline: 35-45 mL per kg of body weight daily.
+- Performance penalty: A loss of >2% of body weight in water induces a significant drop in aerobic capacity and muscular endurance.
+
+2. ELECTROLYTE REPLACEMENT (Intra-Workout):
+- Sodium (Na+): The primary electrolyte lost in sweat. Target 500-1000 mg of sodium per hour of intense, sweat-inducing exercise (especially in hot climates).
+- Potassium (K+): 150-300 mg per hour.
+- Osmolality: Isotonic sports drinks (6-8% carbohydrate solution) provide the fastest gastric emptying and intestinal absorption rates.

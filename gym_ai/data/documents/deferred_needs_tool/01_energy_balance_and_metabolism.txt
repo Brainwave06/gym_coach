@@ -1,0 +1,20 @@
+DOCUMENT_TITLE: Energy Balance, BMR, and Caloric Manipulation
+CATEGORY: Sports Nutrition
+
+1. BMR CALCULATION:
+- Mifflin-St Jeor Equation:
+  Men: BMR = (10 * weight_kg) + (6.25 * height_cm) - (5 * age_years) + 5
+  Women: BMR = (10 * weight_kg) + (6.25 * height_cm) - (5 * age_years) - 161
+
+2. TDEE MULTIPLIERS:
+- Sedentary: BMR * 1.2
+- Light Activity: BMR * 1.375
+- Moderate Activity: BMR * 1.55
+- Heavy Activity: BMR * 1.725
+
+3. CALORIC GOALS:
+- Hypertrophy (Lean Bulking): Caloric surplus of 5-10% (approx. 200-350 kcal/day). Target weight gain: 0.25-0.5% of body weight/week.
+- Fat Loss (Cutting): Caloric deficit of 15-25% (approx. 300-600 kcal/day). Target weight loss: 0.5-1.0% of body weight/week.
+
+4. METABOLIC ADAPTATION:
+- To combat down-regulation of T3 and leptin during long cuts, implement a 48-hour carbohydrate refeed or a 1-week diet break at maintenance calories every 6-8 weeks.

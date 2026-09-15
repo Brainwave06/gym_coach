@@ -37,12 +37,108 @@ def _pick(prompt, options):
         print("Pick one of:", ", ".join(sorted(allowed)))
 
 
+def calculate_biometrics(profile):
+    """
+    Calculate metabolic and fitness targets based on height, weight, age, and goal.
+    Uses the Mifflin-St Jeor formula and evidence-based sports nutrition ratios.
+    """
+    height_cm = float(profile.get("height_cm") or 175.0)
+    weight_kg = float(profile.get("weight_kg") or 70.0)
+    age = int(profile.get("age") or 25)
+    gender = str(profile.get("gender") or "male").lower()
+    goal = str(profile.get("goal") or "health").lower()
+
+    # BMI calculation
+    height_m = max(0.5, height_cm / 100.0)
+    bmi = round(weight_kg / (height_m ** 2), 1)
+    if bmi < 18.5:
+        bmi_cat = "Underweight"
+    elif bmi < 25.0:
+        bmi_cat = "Normal weight"
+    elif bmi < 30.0:
+        bmi_cat = "Overweight"
+    else:
+        bmi_cat = "Obese"
+
+    # Mifflin-St Jeor Basal Metabolic Rate (BMR)
+    if "f" in gender or "woman" in gender or "female" in gender:
+        bmr = round(10 * weight_kg + 6.25 * height_cm - 5 * age - 161)
+    else:
+        bmr = round(10 * weight_kg + 6.25 * height_cm - 5 * age + 5)
+
+    # Activity factor estimation (1.35x sedentary to light training)
+    tdee = round(bmr * 1.35)
+
+    # Goal-adjusted calories & protein
+    if goal == "fat_loss":
+        target_calories = max(1200, tdee - 400)
+        protein_ratio = 2.2  # Higher protein to preserve lean muscle in deficit
+    elif goal == "strength":
+        target_calories = tdee + 250
+        protein_ratio = 2.0
+    else:
+        target_calories = tdee
+        protein_ratio = 1.8
+
+    protein_target_g = round(weight_kg * protein_ratio, 1)
+    water_target_l = round(weight_kg * 0.035, 1)
+
+    return {
+        "height_cm": height_cm,
+        "weight_kg": weight_kg,
+        "age": age,
+        "gender": gender,
+        "bmi": bmi,
+        "bmi_category": bmi_cat,
+        "bmr_kcal": bmr,
+        "estimated_tdee_kcal": tdee,
+        "target_calories_kcal": target_calories,
+        "protein_target_g": protein_target_g,
+        "water_target_liters": water_target_l,
+        "dietary_preferences": profile.get("dietary_preferences", "none"),
+    }
+
+
 def run_onboarding():
     print()
-    print("Quick intake — same questions a coach asks on day one.")
+    print("=" * 48)
+    print("  FitPath Intake — Building Your Coach Profile")
+    print("=" * 48)
     name = input("What should I call you? ").strip() or "Athlete"
-    goal = _pick("Goal?", [
-        ("1", "Get stronger"),
+
+    # Physical Biometrics for Coach
+    print("\n[Physical Metrics for Accurate Coaching & Nutrition]")
+    try:
+        height_raw = input("Height in cm (e.g. 175)? ").strip()
+        height_cm = float(height_raw) if height_raw else 175.0
+    except ValueError:
+        height_cm = 175.0
+
+    try:
+        weight_raw = input("Weight in kg (e.g. 75)? ").strip()
+        weight_kg = float(weight_raw) if weight_raw else 70.0
+    except ValueError:
+        weight_kg = 70.0
+
+    try:
+        age_raw = input("Age in years (e.g. 25)? ").strip()
+        age = int(age_raw) if age_raw else 25
+    except ValueError:
+        age = 25
+
+    gender_choice = _pick("Biological sex (for metabolic BMR calculation)?", [
+        ("1", "Male"),
+        ("2", "Female"),
+        ("3", "Other / Prefer not to say"),
+    ])
+    gender = {"1": "male", "2": "female", "3": "unspecified"}[gender_choice]
+
+    diet_pref = input("Any dietary restrictions or preferences (e.g., none, vegetarian, high-protein, keto)? ").strip()
+    dietary_preferences = diet_pref if diet_pref else "none"
+
+    print("\n[Training Preferences]")
+    goal = _pick("Primary Goal?", [
+        ("1", "Get stronger / Build muscle"),
         ("2", "Lose fat / feel fitter"),
         ("3", "Move better / general health"),
     ])
@@ -77,6 +173,11 @@ def run_onboarding():
     ])
     profile = {
         "name": name,
+        "height_cm": height_cm,
+        "weight_kg": weight_kg,
+        "age": age,
+        "gender": gender,
+        "dietary_preferences": dietary_preferences,
         "goal": {"1": "strength", "2": "fat_loss", "3": "health"}[goal],
         "experience": {"1": "beginner", "2": "intermediate", "3": "advanced"}[experience],
         "injuries": injuries,
@@ -89,11 +190,52 @@ def run_onboarding():
         "camera_setup": None,
     }
     save_profile(profile)
-    print(f"Saved profile for {name}.")
+    bio = calculate_biometrics(profile)
+    print(f"\nProfile saved for {name}!")
+    print(f"  Height: {height_cm} cm | Weight: {weight_kg} kg | BMI: {bio['bmi']} ({bio['bmi_category']})")
+    print(f"  Target Protein: {bio['protein_target_g']}g/day | Daily Water: {bio['water_target_liters']}L")
     return ensure_defaults(profile)
 
 
+def edit_biometrics(profile):
+    """Interactive editor to update athlete weight, height, and dietary preferences."""
+    print()
+    print("=== Update Athlete Biometrics ===")
+    print(f"Current Height: {profile.get('height_cm', 175)} cm")
+    print(f"Current Weight: {profile.get('weight_kg', 70)} kg")
+    print(f"Dietary Preferences: {profile.get('dietary_preferences', 'none')}")
+
+    h_input = input("New Height in cm (press Enter to keep): ").strip()
+    if h_input:
+        try:
+            profile["height_cm"] = float(h_input)
+        except ValueError:
+            pass
+
+    w_input = input("New Weight in kg (press Enter to keep): ").strip()
+    if w_input:
+        try:
+            profile["weight_kg"] = float(w_input)
+        except ValueError:
+            pass
+
+    d_input = input("New Dietary preferences (press Enter to keep): ").strip()
+    if d_input:
+        profile["dietary_preferences"] = d_input
+
+    save_profile(profile)
+    bio = calculate_biometrics(profile)
+    print("\nBiometrics updated successfully!")
+    print(f"  BMI: {bio['bmi']} ({bio['bmi_category']}) | Protein Target: {bio['protein_target_g']}g/day")
+    return profile
+
+
 def ensure_defaults(profile):
+    profile.setdefault("height_cm", 175.0)
+    profile.setdefault("weight_kg", 70.0)
+    profile.setdefault("age", 25)
+    profile.setdefault("gender", "unspecified")
+    profile.setdefault("dietary_preferences", "none")
     profile.setdefault("time_budget_min", 25)
     profile.setdefault("voice_mode", "full")
     profile.setdefault("voice_gender", "Female")

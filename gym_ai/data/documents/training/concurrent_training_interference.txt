@@ -1,0 +1,11 @@
+DOCUMENT_TITLE: Concurrent Training and The Interference Effect
+CATEGORY: Advanced Training
+
+1. THE INTERFERENCE EFFECT (AMPK vs. mTOR):
+- Mechanism: High-intensity endurance training activates the AMPK pathway (cellular energy sensor), which can blunt the mTORC1 pathway responsible for Muscle Protein Synthesis (MPS).
+- Result: Excessive cardio can compromise muscle hypertrophy and maximum power output.
+
+2. MITIGATION STRATEGIES:
+- Separation: Separate resistance training and cardiovascular training by at least 6 to 8 hours.
+- Modality: Low-Impact Steady State (LISS) cardio (e.g., cycling, brisk walking) causes less muscle damage and interference than high-impact running or intense HIIT.
+- Sequencing: If performed in the same session, ALWAYS perform resistance training first, followed by cardiovascular training.

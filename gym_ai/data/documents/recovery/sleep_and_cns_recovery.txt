@@ -1,0 +1,10 @@
+DOCUMENT_TITLE: Sleep Architecture and CNS Recovery
+CATEGORY: Recovery & Performance
+
+1. SLEEP STAGES & PHYSIOLOGY:
+- Slow-Wave Sleep (Deep Sleep): Occurs primarily in the first half of the night. Crucial for physical recovery; highest pulse of Human Growth Hormone (HGH) release.
+- REM Sleep: Crucial for cognitive function and motor skill consolidation (learning new exercise techniques).
+
+2. PERFORMANCE IMPACT OF DEPRIVATION:
+- Acute sleep deprivation (<6 hours) significantly reduces insulin sensitivity, increases baseline cortisol, lowers testosterone, and impairs maximal voluntary contraction (MVC) during heavy lifts.
+- Target: 7 to 9 hours of uninterrupted sleep in a cool (18-20 C), completely dark environment.

@@ -1,0 +1,12 @@
+DOCUMENT_TITLE: Plant-Based (Vegan) Sports Nutrition Optimization
+CATEGORY: Specific Diets
+
+1. PROTEIN QUALITY & AMINO ACID COMBINING:
+- Plant proteins generally have lower digestibility (DIAAS score) and are often limiting in specific essential amino acids (e.g., grains lack lysine; legumes lack methionine).
+- Solution: Blend protein sources (e.g., rice and pea protein isolate in a 50/50 ratio) to mimic the complete amino acid profile of whey protein.
+
+2. LEUCINE THRESHOLD IN VEGANS:
+- Plant sources have lower Leucine density per gram. To hit the 2.5-3.0g Leucine trigger for MPS, athletes must either consume larger total protein doses per meal (e.g., 35-40g of plant protein) or supplement with free-form L-Leucine.
+
+3. MICRONUTRIENT GAPS:
+- Vegans must actively monitor and supplement Vitamin B12, Iron (non-heme iron has lower absorption), Zinc, Calcium, and Omega-3 (EPA/DHA from algae oil).
