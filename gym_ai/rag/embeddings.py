@@ -24,7 +24,8 @@ class QwenDashScopeEmbeddings(Embeddings):
         base_url: str = LLM_BASE_URL,
     ):
         self.model = model
-        self.client = OpenAI(api_key=api_key, base_url=base_url)
+        effective_key = (api_key or "").strip() or "sk-placeholder-key-not-set"
+        self.client = OpenAI(api_key=effective_key, base_url=base_url)
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         if not texts:

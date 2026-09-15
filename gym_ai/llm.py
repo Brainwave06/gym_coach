@@ -14,15 +14,17 @@ from gym_ai.config import LLM_API_KEY, LLM_BASE_URL, LLM_MODEL, LLM_TIMEOUT
 
 logger = logging.getLogger("gym_ai.llm")
 
+effective_key = (LLM_API_KEY or "").strip() or "sk-placeholder-key-not-set"
+
 # Synchronous and Asynchronous clients
 sync_client = OpenAI(
-    api_key=LLM_API_KEY,
+    api_key=effective_key,
     base_url=LLM_BASE_URL,
     timeout=LLM_TIMEOUT,
 )
 
 async_client = AsyncOpenAI(
-    api_key=LLM_API_KEY,
+    api_key=effective_key,
     base_url=LLM_BASE_URL,
     timeout=LLM_TIMEOUT,
 )
