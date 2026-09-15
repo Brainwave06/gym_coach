@@ -445,5 +445,40 @@
       "daily_protein_target_g": 130.0,
       "meal_protein_coverage_pct": 37.7
     }
+  },
+  {
+    "timestamp": "2026-09-15T08:47:54",
+    "meal_name": "Grilled Chicken with Mixed Greens Salad",
+    "items": [
+      {
+        "name": "Grilled Chicken Breast",
+        "portion_g": 180,
+        "calories": 240,
+        "protein_g": 45.0,
+        "carbs_g": 0.0,
+        "fat_g": 7.0
+      },
+      {
+        "name": "Mixed Greens Salad (Arugula, Spinach, Red Onion, Cucumber, Tomato)",
+        "portion_g": 150,
+        "calories": 60,
+        "protein_g": 3.0,
+        "carbs_g": 10.0,
+        "fat_g": 1.5
+      }
+    ],
+    "total_calories": 300,
+    "total_protein_g": 48.0,
+    "total_carbs_g": 10.0,
+    "total_fat_g": 8.5,
+    "coach_feedback": "This meal is a solid protein-rich option that supports Abdelrahman's strength training goals. The grilled chicken provides high-quality lean protein, and the fresh salad adds essential vitamins and fiber. However, the total calories are relatively low for his daily target of 1711 kcal, so this meal may be best used as a post-workout or midday snack rather than a main meal.",
+    "suggestions": [
+      "Add a serving of complex carbohydrates such as quinoa or brown rice to increase caloric intake and support muscle recovery.",
+      "Include a healthy fat source like avocado or olive oil dressing to boost calorie density and nutrient absorption."
+    ],
+    "target_comparison": {
+      "daily_protein_target_g": 130.0,
+      "meal_protein_coverage_pct": 36.9
+    }
   }
 ]

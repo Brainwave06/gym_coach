@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:camera/camera.dart';
+import 'package:image/image.dart' as img;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants.dart';
@@ -35,6 +38,15 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
   bool _isAudioMuted = false;
   bool _isAutoSimulating = false;
   Timer? _autoSimTimer;
+
+  // Camera Controller and Frame Streaming
+  List<CameraDescription> _availableCameras = [];
+  CameraController? _cameraController;
+  int _selectedCameraIndex = 0;
+  bool _isCameraInitializing = true;
+  bool _isCameraStreaming = false;
+  bool _isProcessingFrame = false;
+  DateTime _lastFrameSent = DateTime.now();
 
   // Animation Controllers for Rep Pulse & Fault Shake
   late AnimationController _repPulseController;
@@ -73,7 +85,157 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
       CurvedAnimation(parent: _faultShakeController, curve: Curves.easeInOut),
     );
 
+    _initCamera();
     _startSession();
+  }
+
+  Future<void> _initCamera() async {
+    try {
+      _availableCameras = await availableCameras();
+      if (_availableCameras.isEmpty) {
+        if (mounted) setState(() => _isCameraInitializing = false);
+        return;
+      }
+
+      // Default to front camera (selfie) for workout tracking so athlete sees form
+      int frontIndex = _availableCameras.indexWhere(
+        (c) => c.lensDirection == CameraLensDirection.front,
+      );
+      _selectedCameraIndex = frontIndex != -1 ? frontIndex : 0;
+      await _startCamera(_availableCameras[_selectedCameraIndex]);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isCameraInitializing = false;
+          _statusError = 'Camera access: $e';
+        });
+      }
+    }
+  }
+
+  Future<void> _startCamera(CameraDescription camera) async {
+    if (_cameraController != null) {
+      try {
+        if (_cameraController!.value.isStreamingImages) {
+          await _cameraController!.stopImageStream();
+        }
+      } catch (_) {}
+      await _cameraController!.dispose();
+      _cameraController = null;
+    }
+
+    final controller = CameraController(
+      camera,
+      ResolutionPreset.medium,
+      enableAudio: false,
+      imageFormatGroup: ImageFormatGroup.yuv420,
+    );
+
+    _cameraController = controller;
+
+    try {
+      await controller.initialize();
+      if (!mounted) return;
+
+      _startImageStream(controller);
+
+      setState(() {
+        _isCameraInitializing = false;
+        _isCameraStreaming = true;
+      });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isCameraInitializing = false;
+          _statusError = 'Camera init: $e';
+        });
+      }
+    }
+  }
+
+  void _startImageStream(CameraController controller) {
+    try {
+      controller.startImageStream((CameraImage cameraImage) {
+        final now = DateTime.now();
+        if (_isProcessingFrame ||
+            _isFinished ||
+            now.difference(_lastFrameSent).inMilliseconds < 160) {
+          return;
+        }
+
+        _isProcessingFrame = true;
+        _lastFrameSent = now;
+
+        try {
+          final jpegBase64 = _convertYuv420ToJpegBase64(cameraImage);
+          if (jpegBase64 != null) {
+            _wsService.sendFrameBase64(jpegBase64);
+          }
+        } catch (_) {}
+
+        _isProcessingFrame = false;
+      });
+    } catch (_) {}
+  }
+
+  String? _convertYuv420ToJpegBase64(CameraImage cameraImage) {
+    try {
+      final width = cameraImage.width;
+      final height = cameraImage.height;
+      const step = 2; // 2x subsampling for high-speed CV evaluation
+      final targetWidth = width ~/ step;
+      final targetHeight = height ~/ step;
+
+      final outImage = img.Image(width: targetWidth, height: targetHeight);
+
+      final yPlane = cameraImage.planes[0];
+      final uPlane = cameraImage.planes[1];
+      final vPlane = cameraImage.planes[2];
+
+      final yBytes = yPlane.bytes;
+      final uBytes = uPlane.bytes;
+      final vBytes = vPlane.bytes;
+
+      final yRowStride = yPlane.bytesPerRow;
+      final uvRowStride = uPlane.bytesPerRow;
+      final uvPixelStride = uPlane.bytesPerPixel ?? 1;
+
+      for (int ty = 0; ty < targetHeight; ty++) {
+        final srcY = ty * step;
+        final yRowOffset = srcY * yRowStride;
+        final uvRowOffset = (srcY >> 1) * uvRowStride;
+
+        for (int tx = 0; tx < targetWidth; tx++) {
+          final srcX = tx * step;
+          final yIdx = yRowOffset + srcX;
+          final uvIdx = uvRowOffset + (srcX >> 1) * uvPixelStride;
+
+          if (yIdx >= yBytes.length || uvIdx >= uBytes.length || uvIdx >= vBytes.length) continue;
+
+          final y = yBytes[yIdx];
+          final u = uBytes[uvIdx] - 128;
+          final v = vBytes[uvIdx] - 128;
+
+          int r = (y + 1.402 * v).round().clamp(0, 255);
+          int g = (y - 0.344136 * u - 0.714136 * v).round().clamp(0, 255);
+          int b = (y + 1.772 * u).round().clamp(0, 255);
+
+          outImage.setPixelRgb(tx, ty, r, g, b);
+        }
+      }
+
+      final jpgBytes = img.encodeJpg(outImage, quality: 65);
+      return base64Encode(jpgBytes);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _switchCamera() async {
+    if (_availableCameras.length < 2) return;
+    setState(() => _isCameraInitializing = true);
+    _selectedCameraIndex = (_selectedCameraIndex + 1) % _availableCameras.length;
+    await _startCamera(_availableCameras[_selectedCameraIndex]);
   }
 
   void _startSession() {
@@ -122,6 +284,7 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
     _autoSimTimer?.cancel();
     _subscription?.cancel();
     _wsService.dispose();
+    _cameraController?.dispose();
     _repPulseController.dispose();
     _faultShakeController.dispose();
     super.dispose();
@@ -137,6 +300,11 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
     setState(() => _isFinished = true);
     _timer?.cancel();
     _wsService.disconnect();
+    try {
+      if (_cameraController != null && _cameraController!.value.isStreamingImages) {
+        await _cameraController!.stopImageStream();
+      }
+    } catch (_) {}
 
     if (!_isAudioMuted) {
       _soundService.playWorkoutComplete();
@@ -335,6 +503,13 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
           ),
         ),
         actions: [
+          // Camera Switch (Front <-> Back)
+          if (_availableCameras.length > 1)
+            IconButton(
+              icon: const Icon(Icons.flip_camera_ios_rounded, color: Colors.white, size: 20),
+              tooltip: 'Switch Camera',
+              onPressed: _switchCamera,
+            ),
           // Audio Mute/Unmute Toggle
           IconButton(
             icon: Icon(
@@ -392,96 +567,139 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen>
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Pose tracking grid simulation
-                    Opacity(
-                      opacity: 0.15,
-                      child: GridPaper(
-                        color: Colors.white,
-                        interval: 44,
-                      ),
-                    ),
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.accessibility_new_rounded,
-                            size: 130,
-                            color: _activeFaults.isNotEmpty
-                                ? AppTheme.accentCoral.withOpacity(0.85)
-                                : Colors.white.withOpacity(0.7),
+                    // 1. Live Camera Preview Feed
+                    if (_cameraController != null && _cameraController!.value.isInitialized)
+                      SizedBox.expand(
+                        child: FittedBox(
+                          fit: BoxFit.cover,
+                          child: SizedBox(
+                            width: _cameraController!.value.previewSize?.height ?? 480,
+                            height: _cameraController!.value.previewSize?.width ?? 640,
+                            child: CameraPreview(_cameraController!),
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            _statusError ?? 'FitPath CV Pose Engine Active',
-                            style: TextStyle(
-                              color: _statusError != null
-                                  ? AppTheme.accentCoral
-                                  : Colors.white.withOpacity(0.7),
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
+                        ),
+                      )
+                    else if (_isCameraInitializing)
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const CircularProgressIndicator(color: AppTheme.accentGold),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Opening Camera Feed...',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 14),
-                          // Interactive CV Simulation Controls
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            alignment: WrapAlignment.center,
-                            children: [
-                              ElevatedButton.icon(
-                                onPressed: _simulateSingleRep,
-                                icon: const Icon(Icons.fitness_center_rounded, size: 16),
-                                label: const Text('Simulate Rep', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white.withOpacity(0.18),
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    side: BorderSide(color: Colors.white.withOpacity(0.25)),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                ),
+                          ],
+                        ),
+                      )
+                    else
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.videocam_off_rounded,
+                              size: 80,
+                              color: Colors.white.withOpacity(0.5),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              _statusError ?? 'Camera not detected (Use Simulator below)',
+                              style: TextStyle(
+                                color: _statusError != null ? AppTheme.accentCoral : Colors.white.withOpacity(0.7),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
                               ),
-                              ElevatedButton.icon(
-                                onPressed: _toggleAutoSimulation,
-                                icon: Icon(_isAutoSimulating ? Icons.pause_circle_rounded : Icons.auto_awesome_rounded, size: 16),
-                                label: Text(
-                                  _isAutoSimulating ? 'Stop Auto' : 'Auto Benchmark',
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: _isAutoSimulating ? AppTheme.accentGold : Colors.white.withOpacity(0.18),
-                                  foregroundColor: _isAutoSimulating ? const Color(0xFF141936) : Colors.white,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    side: BorderSide(color: _isAutoSimulating ? AppTheme.accentGold : Colors.white.withOpacity(0.25)),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                ),
-                              ),
-                              ElevatedButton.icon(
-                                onPressed: _triggerTestFault,
-                                icon: const Icon(Icons.warning_amber_rounded, size: 16),
-                                label: const Text('Test Fault Alert', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white.withOpacity(0.18),
-                                  foregroundColor: AppTheme.accentCoral,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    side: BorderSide(color: AppTheme.accentCoral.withOpacity(0.5)),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    // 2. Subtle Dark Gradient Vignette for clear HUD readability
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.55),
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.60),
+                          ],
+                          stops: const [0.0, 0.4, 1.0],
+                        ),
                       ),
                     ),
+
+                    // 3. Pose Tracking Guide Outline when camera is active
+                    if (_cameraController != null && _cameraController!.value.isInitialized)
+                      Center(
+                        child: Opacity(
+                          opacity: 0.15,
+                          child: Icon(
+                            Icons.accessibility_new_rounded,
+                            size: 200,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+
+                    // 4. Center simulation quick-actions (collapsible / unobtrusive)
+                    if (_cameraController == null || !_cameraController!.value.isInitialized)
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: 70),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              alignment: WrapAlignment.center,
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: _simulateSingleRep,
+                                  icon: const Icon(Icons.fitness_center_rounded, size: 16),
+                                  label: const Text('Simulate Rep', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white.withOpacity(0.18),
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                      side: BorderSide(color: Colors.white.withOpacity(0.25)),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  ),
+                                ),
+                                ElevatedButton.icon(
+                                  onPressed: _toggleAutoSimulation,
+                                  icon: Icon(_isAutoSimulating ? Icons.pause_circle_rounded : Icons.auto_awesome_rounded, size: 16),
+                                  label: Text(
+                                    _isAutoSimulating ? 'Stop Auto' : 'Auto Benchmark',
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: _isAutoSimulating ? AppTheme.accentGold : Colors.white.withOpacity(0.18),
+                                    foregroundColor: _isAutoSimulating ? const Color(0xFF141936) : Colors.white,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                      side: BorderSide(color: _isAutoSimulating ? AppTheme.accentGold : Colors.white.withOpacity(0.25)),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
 
                     // Live Form Alert Banner with Shake Animation
                     if (_activeFaults.isNotEmpty)
