@@ -23,11 +23,17 @@ $IncludeDirs = @(
     "bird_dog",
     "dead_bug",
     "biceps_curl",
+    "rdl",
+    "overhead_press",
+    "lateral_raise",
+    "gym_ai",
+    "backend",
     "ml",
     "videos"
 )
 $IncludeFiles = @(
     "main.py",
+    "api.py",
     "requirements.txt",
     "run.bat",
     "README.md"

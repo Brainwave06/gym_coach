@@ -14,15 +14,10 @@ This folder is the product spec for the **desktop CV coach**. The Flutter app, b
 8. [ml-report.md](ml-report.md) — form models trained on `synthetic_gym_dataset/`
 9. [data-generation-prompt.md](data-generation-prompt.md) — how to get more data without filming people
 
-## What this product is
+## Project Architecture & Modules
 
-A Windows Python app. Terminal menu + OpenCV camera window. No Flutter UI in this repo.
-
-## What this product is not (yet)
-
-- Mobile app
-- REST API
-- Chatbot
-- Diet engine
-
-Those should **read** `data/dataset/` and `data/coach_handoff.json`. They must not override a `pain` feel or a `form_fade` stop.
+1. **Computer Vision Coach**: 12 compound and isolation exercises with live MediaPipe pose tracking, rep counting, and form correction.
+2. **Gym AI Coach & RAG**: Personalized sports nutrition advice, workout generation, proactive post-workout debriefs, and conversational memory.
+3. **Multimodal Vision**: Plate photo food analysis using Qwen-VL with calorie and macronutrient breakdown.
+4. **FastAPI Backend**: Complete REST and WebSocket API (`api.py` / `backend/main.py`) with universal CORS, JWT auth, athlete biometrics, and workout sync.
+5. **Mobile & Web Frontend (`frontend/`)**: Cross-platform Flutter application with live camera streaming, chat, and dashboard.
