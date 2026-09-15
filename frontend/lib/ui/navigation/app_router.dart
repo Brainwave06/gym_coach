@@ -7,16 +7,24 @@ import '../features/workout/exercise_catalog_screen.dart';
 import '../features/workout/live_workout_screen.dart';
 import '../features/chat/chat_screen.dart';
 import '../features/meals/meal_logger_screen.dart';
+import '../features/onboarding/welcome_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/dashboard',
+  initialLocation: '/welcome',
   routes: [
     GoRoute(
+      path: '/welcome',
+      builder: (context, state) => const WelcomeScreen(),
+    ),
+    GoRoute(
       path: '/auth',
-      builder: (context, state) => const AuthScreen(),
+      builder: (context, state) {
+        final mode = state.uri.queryParameters['mode'];
+        return AuthScreen(initialIsLogin: mode != 'register');
+      },
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
@@ -92,31 +100,46 @@ class ScaffoldWithNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: _onDestinationSelected,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard, color: AppTheme.primary),
-            label: 'Dashboard',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          border: Border(
+            top: BorderSide(color: AppTheme.cardBorder, width: 1),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.fitness_center_outlined),
-            selectedIcon: Icon(Icons.fitness_center, color: AppTheme.primary),
-            label: 'Workouts',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.chat_bubble_outline),
-            selectedIcon: Icon(Icons.chat_bubble, color: AppTheme.primary),
-            label: 'Coach AI',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.restaurant_outlined),
-            selectedIcon: Icon(Icons.restaurant, color: AppTheme.primary),
-            label: 'Meals',
-          ),
-        ],
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF1B224B).withOpacity(0.04),
+              blurRadius: 16,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: NavigationBar(
+          selectedIndex: navigationShell.currentIndex,
+          onDestinationSelected: _onDestinationSelected,
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.dashboard_outlined),
+              selectedIcon: Icon(Icons.dashboard_rounded, color: AppTheme.primary),
+              label: 'Dashboard',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.fitness_center_outlined),
+              selectedIcon: Icon(Icons.fitness_center_rounded, color: AppTheme.primary),
+              label: 'Workouts',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.chat_bubble_outline_rounded),
+              selectedIcon: Icon(Icons.chat_bubble_rounded, color: AppTheme.primary),
+              label: 'Coach AI',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.restaurant_outlined),
+              selectedIcon: Icon(Icons.restaurant_rounded, color: AppTheme.primary),
+              label: 'Meals',
+            ),
+          ],
+        ),
       ),
     );
   }

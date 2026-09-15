@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme.dart';
 import '../../../data/services/api_service.dart';
-import '../../widgets/glass_card.dart';
+import '../../widgets/squircle_icon_card.dart';
 
 class ChatMessage {
   final String text;
@@ -40,7 +40,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     _messages.add(
       ChatMessage(
-        text: "Hey! I'm your Gym AI Coach. I'm connected to your computer-vision training sessions and nutrition logs. How can I help you crush your goals today?",
+        text: "Hey! I'm your FitPath Coach. I'm connected to your computer-vision training sessions and nutrition logs. How can I help you crush your goals today?",
         isUser: false,
         timestamp: DateTime.now(),
       ),
@@ -122,29 +122,77 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
+        titleSpacing: 16,
         title: const Row(
           children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: AppTheme.primary,
-              child: Icon(Icons.fitness_center, size: 18, color: Colors.black),
+            SquircleIconCard(
+              icon: Icons.auto_awesome_rounded,
+              size: 38,
+              iconSize: 20,
+              backgroundColor: AppTheme.surfaceWarm,
+              iconColor: AppTheme.primary,
             ),
             SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('GYM AI COACH', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Text('Powered by Qwen & Sports RAG', style: TextStyle(fontSize: 11, color: AppTheme.primary)),
+                Text(
+                  'FitPath Coach',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textPrimary,
+                    letterSpacing: -0.4,
+                  ),
+                ),
+                Text(
+                  'Powered by Qwen & Sports RAG',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppTheme.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
           ],
         ),
         actions: [
-          TextButton.icon(
-            onPressed: _isSending ? null : _loadDebrief,
-            icon: const Icon(Icons.assessment, size: 16, color: AppTheme.secondary),
-            label: const Text('Debrief', style: TextStyle(color: AppTheme.secondary, fontWeight: FontWeight.bold, fontSize: 13)),
+          Padding(
+            padding: const EdgeInsets.only(right: 14),
+            child: GestureDetector(
+              onTap: _isSending ? null : _loadDebrief,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceWarm,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: AppTheme.surfaceWarmBorder.withOpacity(0.8),
+                  ),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.assessment_outlined,
+                      size: 16,
+                      color: AppTheme.primary,
+                    ),
+                    SizedBox(width: 6),
+                    Text(
+                      'Debrief',
+                      style: TextStyle(
+                        color: AppTheme.primary,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -154,34 +202,38 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: ListView.builder(
               controller: _scrollCtrl,
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final msg = _messages[index];
                 return Align(
                   alignment: msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    margin: const EdgeInsets.only(bottom: 14),
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width * 0.82,
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                     decoration: BoxDecoration(
-                      color: msg.isUser ? AppTheme.primary : AppTheme.surface,
+                      gradient: msg.isUser ? AppTheme.primaryGradient : null,
+                      color: msg.isUser ? null : AppTheme.surface,
                       borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(16),
-                        topRight: const Radius.circular(16),
-                        bottomLeft: Radius.circular(msg.isUser ? 16 : 4),
-                        bottomRight: Radius.circular(msg.isUser ? 4 : 16),
+                        topLeft: const Radius.circular(20),
+                        topRight: const Radius.circular(20),
+                        bottomLeft: Radius.circular(msg.isUser ? 20 : 6),
+                        bottomRight: Radius.circular(msg.isUser ? 6 : 20),
                       ),
-                      border: Border.all(
-                        color: msg.isUser ? AppTheme.primary : Colors.white.withOpacity(0.08),
-                      ),
+                      border: msg.isUser
+                          ? null
+                          : Border.all(color: AppTheme.cardBorder, width: 1),
+                      boxShadow: msg.isUser ? AppTheme.buttonShadow : AppTheme.softShadow,
                     ),
                     child: Text(
                       msg.text,
                       style: TextStyle(
-                        color: msg.isUser ? Colors.black : Colors.white,
+                        color: msg.isUser ? Colors.white : AppTheme.textPrimary,
                         fontSize: 14.5,
-                        height: 1.35,
+                        height: 1.4,
                         fontWeight: msg.isUser ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
@@ -191,46 +243,82 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
 
-          // Loading Indicator
+          // Loading Thinking Indicator
           if (_isSending)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 4),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primary)),
-                  SizedBox(width: 8),
-                  Text('Coach is thinking...', style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                  const SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primary),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Coach is analyzing...',
+                    style: TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ],
               ),
             ),
 
-          // Quick Prompt Chips
+          // Quick Suggestion Chips
           SizedBox(
-            height: 40,
+            height: 42,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               itemCount: _quickPrompts.length,
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, i) {
-                return ActionChip(
-                  label: Text(_quickPrompts[i], style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary)),
-                  backgroundColor: AppTheme.surface,
-                  side: BorderSide(color: Colors.white.withOpacity(0.1)),
-                  onPressed: _isSending ? null : () => _sendMessage(_quickPrompts[i]),
+                return GestureDetector(
+                  onTap: _isSending ? null : () => _sendMessage(_quickPrompts[i]),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppTheme.surfaceWarm,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: AppTheme.surfaceWarmBorder.withOpacity(0.6),
+                      ),
+                    ),
+                    child: Text(
+                      _quickPrompts[i],
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                  ),
                 );
               },
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
 
-          // Input Bar
+          // Bottom Input Bar
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
             decoration: BoxDecoration(
               color: AppTheme.surface,
-              border: Border(top: BorderSide(color: Colors.white.withOpacity(0.06))),
+              border: Border(top: BorderSide(color: AppTheme.cardBorder, width: 1)),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF1B224B).withOpacity(0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, -4),
+                ),
+              ],
             ),
             child: SafeArea(
               top: false,
@@ -240,21 +328,34 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: TextField(
                       controller: _textCtrl,
                       onSubmitted: (_) => _sendMessage(),
+                      style: const TextStyle(color: AppTheme.textPrimary),
                       decoration: const InputDecoration(
-                        hintText: 'Ask about workouts, form, or nutrition...',
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        hintText: 'Ask about training, form, or nutrition...',
+                        contentPadding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                       ),
                     ),
                   ),
                   const SizedBox(width: 10),
+                  // Deep Navy Circular Send Button
                   Container(
-                    decoration: const BoxDecoration(
-                      color: AppTheme.primary,
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
                       shape: BoxShape.circle,
+                      boxShadow: AppTheme.buttonShadow,
                     ),
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_upward, color: Colors.black),
-                      onPressed: _isSending ? null : () => _sendMessage(),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        customBorder: const CircleBorder(),
+                        onTap: _isSending ? null : () => _sendMessage(),
+                        child: const Icon(
+                          Icons.arrow_upward_rounded,
+                          color: Colors.white,
+                          size: 22,
+                        ),
+                      ),
                     ),
                   ),
                 ],

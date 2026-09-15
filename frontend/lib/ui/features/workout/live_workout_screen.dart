@@ -5,6 +5,7 @@ import '../../../core/constants.dart';
 import '../../../core/theme.dart';
 import '../../../data/services/api_service.dart';
 import '../../../data/services/websocket_service.dart';
+import '../../widgets/squircle_icon_card.dart';
 
 class LiveWorkoutScreen extends StatefulWidget {
   final String exerciseId;
@@ -78,7 +79,6 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
     _timer?.cancel();
     _wsService.disconnect();
 
-    // Auto-upload summary to backend
     try {
       await ApiService().uploadWorkoutSummary(
         exerciseId: widget.exerciseId,
@@ -98,48 +98,89 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: AppTheme.background,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Row(
           children: [
-            Icon(Icons.emoji_events, color: Colors.amber, size: 28),
-            SizedBox(width: 10),
-            Text('Session Completed!'),
+            SquircleIconCard(
+              icon: Icons.emoji_events_rounded,
+              size: 42,
+              iconSize: 22,
+              backgroundColor: AppTheme.surfaceWarm,
+              iconColor: AppTheme.accentGold,
+            ),
+            SizedBox(width: 14),
+            Text(
+              'Session Finished!',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 18,
+                color: AppTheme.textPrimary,
+              ),
+            ),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Exercise: ${widget.exerciseId.toUpperCase()}', style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            Text('Total Reps: $_reps'),
-            Text('Duration: ${_formatTime(_elapsedSeconds)}'),
-            Text('Avg Cadence: ${_avgCadence.toStringAsFixed(1)}s / rep'),
-            Text('Fatigue Loss: ${_fatigueLoss.toStringAsFixed(1)}%'),
+            Text(
+              widget.exerciseId.replaceAll('_', ' ').toUpperCase(),
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
+                color: AppTheme.primary,
+              ),
+            ),
+            const SizedBox(height: 14),
+            _buildSummaryRow('Total Repetitions', '$_reps reps'),
+            _buildSummaryRow('Workout Duration', _formatTime(_elapsedSeconds)),
+            _buildSummaryRow('Average Tempo', '${_avgCadence.toStringAsFixed(1)}s / rep'),
+            _buildSummaryRow('Fatigue Drop-off', '${_fatigueLoss.toStringAsFixed(1)}%'),
             const SizedBox(height: 16),
             const Text(
-              'Your CV handoff has been saved! The Gym AI Coach is ready for your debriefing.',
-              style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+              'CV handoff saved! The AI Coach is prepared for your debriefing.',
+              style: TextStyle(color: AppTheme.textSecondary, fontSize: 13, height: 1.4),
             ),
           ],
         ),
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               context.go('/dashboard');
             },
-            child: const Text('Dashboard'),
+            child: const Text(
+              'Dashboard',
+              style: TextStyle(color: AppTheme.textSecondary, fontWeight: FontWeight.w700),
+            ),
           ),
           ElevatedButton.icon(
             onPressed: () {
               Navigator.pop(ctx);
               context.go('/chat');
             },
-            icon: const Icon(Icons.chat_bubble, size: 16, color: Colors.black),
+            icon: const Icon(Icons.chat_bubble_outline_rounded, size: 16, color: Colors.white),
             label: const Text('Chat Coach Debrief'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primary,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w700, color: AppTheme.textPrimary, fontSize: 13)),
         ],
       ),
     );
@@ -153,24 +194,39 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
     )['name']!;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF0F1424),
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(exName, style: const TextStyle(fontSize: 18)),
+        backgroundColor: const Color(0xFF0F1424),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(
+          exName,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
         actions: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             margin: const EdgeInsets.only(right: 16),
             decoration: BoxDecoration(
-              color: AppTheme.surfaceElevated,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppTheme.primary.withOpacity(0.4)),
+              color: Colors.white.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withOpacity(0.15)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.timer, size: 14, color: AppTheme.primary),
+                const Icon(Icons.timer_outlined, size: 15, color: Colors.white),
                 const SizedBox(width: 6),
-                Text(_formatTime(_elapsedSeconds), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                Text(
+                  _formatTime(_elapsedSeconds),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    fontSize: 13,
+                  ),
+                ),
               ],
             ),
           ),
@@ -178,29 +234,31 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
       ),
       body: Stack(
         children: [
-          // Camera Simulation / Live Feed Viewport
+          // Viewport Container with rounded borders
           Center(
             child: Container(
-              margin: const EdgeInsets.all(16),
+              margin: const EdgeInsets.fromLTRB(16, 8, 16, 90),
               decoration: BoxDecoration(
-                color: const Color(0xFF101725),
-                borderRadius: BorderRadius.circular(24),
+                color: const Color(0xFF171D33),
+                borderRadius: BorderRadius.circular(26),
                 border: Border.all(
-                  color: _activeFaults.isNotEmpty ? AppTheme.danger : AppTheme.primary.withOpacity(0.5),
+                  color: _activeFaults.isNotEmpty
+                      ? AppTheme.accentCoral
+                      : Colors.white.withOpacity(0.12),
                   width: 2,
                 ),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(26),
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Mock camera background visual with pose grid
+                    // Pose tracking grid simulation
                     Opacity(
-                      opacity: 0.2,
+                      opacity: 0.15,
                       child: GridPaper(
-                        color: AppTheme.primary.withOpacity(0.2),
-                        interval: 40,
+                        color: Colors.white,
+                        interval: 44,
                       ),
                     ),
                     Center(
@@ -208,23 +266,28 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.accessibility_new,
-                            size: 140,
-                            color: _activeFaults.isNotEmpty ? AppTheme.danger.withOpacity(0.7) : AppTheme.primary.withOpacity(0.7),
+                            Icons.accessibility_new_rounded,
+                            size: 130,
+                            color: _activeFaults.isNotEmpty
+                                ? AppTheme.accentCoral.withOpacity(0.85)
+                                : Colors.white.withOpacity(0.7),
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            _statusError ?? 'MediaPipe Vision HUD Active',
+                            _statusError ?? 'FitPath CV Pose Engine Active',
                             style: TextStyle(
-                              color: _statusError != null ? AppTheme.danger : AppTheme.textSecondary,
-                              fontSize: 14,
+                              color: _statusError != null
+                                  ? AppTheme.accentCoral
+                                  : Colors.white.withOpacity(0.7),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       ),
                     ),
 
-                    // Top Fault Banner Overlay
+                    // Live Form Alert Banner
                     if (_activeFaults.isNotEmpty)
                       Positioned(
                         top: 16,
@@ -233,10 +296,14 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
-                            color: AppTheme.danger.withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(12),
+                            color: AppTheme.accentCoral.withOpacity(0.95),
+                            borderRadius: BorderRadius.circular(16),
                             boxShadow: [
-                              BoxShadow(color: AppTheme.danger.withOpacity(0.4), blurRadius: 10),
+                              BoxShadow(
+                                color: AppTheme.accentCoral.withOpacity(0.35),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
                             ],
                           ),
                           child: Row(
@@ -246,7 +313,11 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
                               Expanded(
                                 child: Text(
                                   'FORM ALERT: ${_activeFaults.join(", ").toUpperCase()}',
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 13,
+                                  ),
                                 ),
                               ),
                             ],
@@ -254,91 +325,151 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
                         ),
                       ),
 
-                    // Top-Left Rep Counter Badge
+                    // Top-Left Rep Counter Card
                     Positioned(
-                      top: _activeFaults.isNotEmpty ? 70 : 16,
+                      top: _activeFaults.isNotEmpty ? 74 : 16,
                       left: 16,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
                         decoration: BoxDecoration(
-                          color: AppTheme.surface.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppTheme.primary, width: 2),
+                          color: const Color(0xFFFAF9F5),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 14,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: Column(
                           children: [
                             Text(
                               '$_reps',
-                              style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w900, color: AppTheme.primary, height: 1.0),
+                              style: const TextStyle(
+                                fontSize: 40,
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.primary,
+                                height: 1.0,
+                              ),
                             ),
-                            const Text('REPS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.textSecondary)),
+                            const SizedBox(height: 2),
+                            const Text(
+                              'REPS',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: AppTheme.textSecondary,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     ),
 
-                    // Top-Right Stage Badge
+                    // Top-Right Movement Stage Badge
                     Positioned(
-                      top: _activeFaults.isNotEmpty ? 70 : 16,
+                      top: _activeFaults.isNotEmpty ? 74 : 16,
                       right: 16,
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         decoration: BoxDecoration(
-                          color: AppTheme.surface.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppTheme.secondary.withOpacity(0.6)),
+                          color: AppTheme.surfaceWarm,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: AppTheme.surfaceWarmBorder.withOpacity(0.8),
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(_stage, style: const TextStyle(color: AppTheme.secondary, fontWeight: FontWeight.w900, fontSize: 14)),
+                            Text(
+                              _stage,
+                              style: const TextStyle(
+                                color: AppTheme.primary,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 14,
+                              ),
+                            ),
                             const SizedBox(height: 2),
-                            Text('${_avgCadence.toStringAsFixed(1)}s pace', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
+                            Text(
+                              '${_avgCadence.toStringAsFixed(1)}s pace',
+                              style: const TextStyle(
+                                color: AppTheme.textSecondary,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     ),
 
-                    // Bottom HUD Metrics (Fatigue & Cadence)
+                    // Bottom Floating Metrics Strip
                     Positioned(
                       bottom: 16,
                       left: 16,
                       right: 16,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                         decoration: BoxDecoration(
-                          color: AppTheme.surface.withOpacity(0.92),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.white12),
+                          color: const Color(0xFFFAF9F5),
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.18),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             Column(
                               children: [
-                                const Text('Velocity Loss', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                                const Text(
+                                  'Velocity Loss',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: AppTheme.textSecondary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                                 const SizedBox(height: 4),
                                 Text(
                                   '${_fatigueLoss.toStringAsFixed(1)}%',
                                   style: TextStyle(
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w800,
                                     fontSize: 16,
-                                    color: _fatigueLoss > 20.0 ? AppTheme.danger : AppTheme.primary,
+                                    color: _fatigueLoss > 20.0
+                                        ? AppTheme.accentCoral
+                                        : AppTheme.primary,
                                   ),
                                 ),
                               ],
                             ),
-                            Container(width: 1, height: 28, color: Colors.white12),
+                            Container(width: 1, height: 26, color: AppTheme.cardBorder),
                             Column(
                               children: [
-                                const Text('RIR / Fatigue', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                                const Text(
+                                  'RIR / Fatigue',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: AppTheme.textSecondary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                                 const SizedBox(height: 4),
                                 Text(
                                   _fatigueLoss > 20 ? 'RPE 9 (Fatigued)' : 'RIR 3 (Fresh)',
                                   style: TextStyle(
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w800,
                                     fontSize: 14,
-                                    color: _fatigueLoss > 20 ? Colors.amber : AppTheme.secondary,
+                                    color: _fatigueLoss > 20
+                                        ? const Color(0xFFE65100)
+                                        : AppTheme.primaryLight,
                                   ),
                                 ),
                               ],
@@ -353,21 +484,44 @@ class _LiveWorkoutScreenState extends State<LiveWorkoutScreen> {
             ),
           ),
 
-          // Bottom Finish CTA
+          // Bottom Finish Workout Pill Button
           Positioned(
-            bottom: 24,
+            bottom: 20,
             left: 24,
             right: 24,
-            child: ElevatedButton.icon(
-              onPressed: _isFinished ? null : _handleFinish,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.danger,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: AppTheme.buttonShadow,
               ),
-              icon: const Icon(Icons.stop_circle, color: Colors.white),
-              label: const Text('FINISH WORKOUT & DEBRIEF', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: _isFinished ? null : _handleFinish,
+                  borderRadius: BorderRadius.circular(30),
+                  splashColor: Colors.white.withOpacity(0.15),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 22),
+                      SizedBox(width: 10),
+                      Text(
+                        'Finish Workout & Debrief',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ],

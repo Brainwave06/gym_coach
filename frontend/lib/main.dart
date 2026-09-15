@@ -15,7 +15,7 @@ class FitPathApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'FitPath AI - Computer Vision & Gym Coach',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
       routerConfig: appRouter,
     );
   }

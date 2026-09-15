@@ -7,6 +7,7 @@ class GlassCard extends StatelessWidget {
   final VoidCallback? onTap;
   final Color? borderColor;
   final Color? backgroundColor;
+  final double borderRadius;
 
   const GlassCard({
     super.key,
@@ -15,37 +16,35 @@ class GlassCard extends StatelessWidget {
     this.onTap,
     this.borderColor,
     this.backgroundColor,
+    this.borderRadius = 22,
   });
 
   @override
   Widget build(BuildContext context) {
     Widget card = Container(
-      padding: padding ?? const EdgeInsets.all(18),
+      padding: padding ?? const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: backgroundColor ?? AppTheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
-          color: borderColor ?? Colors.white.withOpacity(0.08),
-          width: 1.2,
+          color: borderColor ?? AppTheme.cardBorder,
+          width: 1.0,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.25),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppTheme.softShadow,
       ),
       child: child,
     );
 
     if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        splashColor: AppTheme.primary.withOpacity(0.1),
-        highlightColor: AppTheme.primary.withOpacity(0.05),
-        child: card,
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(borderRadius),
+          splashColor: AppTheme.primary.withOpacity(0.08),
+          highlightColor: AppTheme.primary.withOpacity(0.04),
+          child: card,
+        ),
       );
     }
     return card;
