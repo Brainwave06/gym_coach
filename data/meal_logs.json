@@ -1,0 +1,449 @@
+[
+  {
+    "timestamp": "2026-09-15T06:13:54",
+    "meal_name": "Chicken Breast and Jasmine Rice with Broccoli",
+    "items": [
+      {
+        "name": "Grilled Chicken Breast",
+        "portion_g": 200,
+        "calories": 330,
+        "protein_g": 62.0,
+        "carbs_g": 0.0,
+        "fat_g": 7.0
+      },
+      {
+        "name": "White Jasmine Rice",
+        "portion_g": 180,
+        "calories": 234,
+        "protein_g": 4.5,
+        "carbs_g": 50.4,
+        "fat_g": 0.5
+      },
+      {
+        "name": "Steamed Broccoli",
+        "portion_g": 100,
+        "calories": 35,
+        "protein_g": 2.4,
+        "carbs_g": 7.0,
+        "fat_g": 0.4
+      }
+    ],
+    "total_calories": 599,
+    "total_protein_g": 68.9,
+    "total_carbs_g": 57.4,
+    "total_fat_g": 7.9,
+    "coach_feedback": "Excellent high-protein recovery meal!",
+    "suggestions": [
+      "Drink 500ml water"
+    ],
+    "target_comparison": {
+      "daily_protein_target_g": 140.0,
+      "meal_protein_coverage_pct": 49.2
+    }
+  },
+  {
+    "timestamp": "2026-09-15T06:16:12",
+    "meal_name": "Chicken Breast and Jasmine Rice with Broccoli",
+    "items": [
+      {
+        "name": "Grilled Chicken Breast",
+        "portion_g": 200,
+        "calories": 330,
+        "protein_g": 62.0,
+        "carbs_g": 0.0,
+        "fat_g": 7.0
+      },
+      {
+        "name": "White Jasmine Rice",
+        "portion_g": 180,
+        "calories": 234,
+        "protein_g": 4.5,
+        "carbs_g": 50.4,
+        "fat_g": 0.5
+      },
+      {
+        "name": "Steamed Broccoli",
+        "portion_g": 100,
+        "calories": 35,
+        "protein_g": 2.4,
+        "carbs_g": 7.0,
+        "fat_g": 0.4
+      }
+    ],
+    "total_calories": 599,
+    "total_protein_g": 68.9,
+    "total_carbs_g": 57.4,
+    "total_fat_g": 7.9,
+    "coach_feedback": "Excellent high-protein recovery meal!",
+    "suggestions": [
+      "Drink 500ml water"
+    ],
+    "target_comparison": {
+      "daily_protein_target_g": 140.0,
+      "meal_protein_coverage_pct": 49.2
+    }
+  },
+  {
+    "timestamp": "2026-09-15T06:17:41",
+    "meal_name": "Chicken Breast and Jasmine Rice with Broccoli",
+    "items": [
+      {
+        "name": "Grilled Chicken Breast",
+        "portion_g": 200,
+        "calories": 330,
+        "protein_g": 62.0,
+        "carbs_g": 0.0,
+        "fat_g": 7.0
+      },
+      {
+        "name": "White Jasmine Rice",
+        "portion_g": 180,
+        "calories": 234,
+        "protein_g": 4.5,
+        "carbs_g": 50.4,
+        "fat_g": 0.5
+      },
+      {
+        "name": "Steamed Broccoli",
+        "portion_g": 100,
+        "calories": 35,
+        "protein_g": 2.4,
+        "carbs_g": 7.0,
+        "fat_g": 0.4
+      }
+    ],
+    "total_calories": 599,
+    "total_protein_g": 68.9,
+    "total_carbs_g": 57.4,
+    "total_fat_g": 7.9,
+    "coach_feedback": "Excellent high-protein recovery meal!",
+    "suggestions": [
+      "Drink 500ml water"
+    ],
+    "target_comparison": {
+      "daily_protein_target_g": 140.0,
+      "meal_protein_coverage_pct": 49.2
+    }
+  },
+  {
+    "timestamp": "2026-09-15T06:24:14",
+    "meal_name": "Chicken Breast and Jasmine Rice with Broccoli",
+    "items": [
+      {
+        "name": "Grilled Chicken Breast",
+        "portion_g": 200,
+        "calories": 330,
+        "protein_g": 62.0,
+        "carbs_g": 0.0,
+        "fat_g": 7.0
+      },
+      {
+        "name": "White Jasmine Rice",
+        "portion_g": 180,
+        "calories": 234,
+        "protein_g": 4.5,
+        "carbs_g": 50.4,
+        "fat_g": 0.5
+      },
+      {
+        "name": "Steamed Broccoli",
+        "portion_g": 100,
+        "calories": 35,
+        "protein_g": 2.4,
+        "carbs_g": 7.0,
+        "fat_g": 0.4
+      }
+    ],
+    "total_calories": 599,
+    "total_protein_g": 68.9,
+    "total_carbs_g": 57.4,
+    "total_fat_g": 7.9,
+    "coach_feedback": "Excellent high-protein recovery meal!",
+    "suggestions": [
+      "Drink 500ml water"
+    ],
+    "target_comparison": {
+      "daily_protein_target_g": 140.0,
+      "meal_protein_coverage_pct": 49.2
+    }
+  },
+  {
+    "timestamp": "2026-09-15T06:33:17",
+    "meal_name": "Grilled Chicken with Garden Salad",
+    "items": [
+      {
+        "name": "Grilled Chicken Breast",
+        "portion_g": 180,
+        "calories": 240,
+        "protein_g": 45.0,
+        "carbs_g": 0.0,
+        "fat_g": 7.0
+      },
+      {
+        "name": "Mixed Greens (Arugula, Spinach)",
+        "portion_g": 60,
+        "calories": 30,
+        "protein_g": 3.0,
+        "carbs_g": 4.0,
+        "fat_g": 0.5
+      },
+      {
+        "name": "Cucumber Slices",
+        "portion_g": 60,
+        "calories": 15,
+        "protein_g": 1.0,
+        "carbs_g": 3.5,
+        "fat_g": 0.1
+      },
+      {
+        "name": "Cherry Tomatoes (halved)",
+        "portion_g": 80,
+        "calories": 25,
+        "protein_g": 1.5,
+        "carbs_g": 5.5,
+        "fat_g": 0.2
+      },
+      {
+        "name": "Red Onion Slices",
+        "portion_g": 30,
+        "calories": 15,
+        "protein_g": 0.5,
+        "carbs_g": 3.5,
+        "fat_g": 0.1
+      },
+      {
+        "name": "Purple Cabbage (shredded)",
+        "portion_g": 20,
+        "calories": 10,
+        "protein_g": 0.5,
+        "carbs_g": 2.0,
+        "fat_g": 0.1
+      }
+    ],
+    "total_calories": 335,
+    "total_protein_g": 51.0,
+    "total_carbs_g": 18.5,
+    "total_fat_g": 7.9,
+    "coach_feedback": "This meal is a solid choice for strength training, providing high-quality protein from grilled chicken to support muscle repair and growth. The vegetables add fiber, vitamins, and antioxidants while keeping calories moderate. However, the total caloric intake is on the lower side for your daily target of 1711 kcal, so consider adding a healthy fat source or complex carbs in future meals to meet energy needs.",
+    "suggestions": [
+      "Add a serving of cooked quinoa or brown rice (about 100g) to increase calorie and carbohydrate intake for sustained energy.",
+      "Include a tablespoon of olive oil or avocado dressing to boost healthy fats and enhance nutrient absorption."
+    ],
+    "target_comparison": {
+      "daily_protein_target_g": 130.0,
+      "meal_protein_coverage_pct": 39.2
+    }
+  },
+  {
+    "timestamp": "2026-09-15T06:36:07",
+    "meal_name": "Grilled Chicken with Mixed Vegetable Salad",
+    "items": [
+      {
+        "name": "Grilled Chicken Breast",
+        "portion_g": 180,
+        "calories": 240,
+        "protein_g": 45.0,
+        "carbs_g": 0.0,
+        "fat_g": 7.0
+      },
+      {
+        "name": "Mixed Greens (Arugula, Spinach)",
+        "portion_g": 60,
+        "calories": 30,
+        "protein_g": 3.0,
+        "carbs_g": 5.0,
+        "fat_g": 0.5
+      },
+      {
+        "name": "Cucumber Slices",
+        "portion_g": 80,
+        "calories": 16,
+        "protein_g": 1.0,
+        "carbs_g": 3.5,
+        "fat_g": 0.1
+      },
+      {
+        "name": "Cherry Tomatoes (halved)",
+        "portion_g": 70,
+        "calories": 25,
+        "protein_g": 1.5,
+        "carbs_g": 5.5,
+        "fat_g": 0.2
+      },
+      {
+        "name": "Red Onion Slices",
+        "portion_g": 30,
+        "calories": 15,
+        "protein_g": 0.5,
+        "carbs_g": 3.5,
+        "fat_g": 0.1
+      },
+      {
+        "name": "Purple Cabbage (shredded)",
+        "portion_g": 20,
+        "calories": 10,
+        "protein_g": 0.8,
+        "carbs_g": 2.0,
+        "fat_g": 0.1
+      }
+    ],
+    "total_calories": 336,
+    "total_protein_g": 51.3,
+    "total_carbs_g": 19.5,
+    "total_fat_g": 7.9,
+    "coach_feedback": "This meal is a solid choice for strength training, providing high-quality protein from grilled chicken and a variety of micronutrients from the vegetables. The portion size supports muscle repair and recovery, though it's on the lower end of caloric intake for your daily target. Consider adding a complex carbohydrate source like quinoa or sweet potato to better meet your 1711 kcal goal.",
+    "suggestions": [
+      "Add 1/2 cup cooked quinoa (+110 kcal, +4g protein, +22g carbs) to increase energy density and support muscle glycogen replenishment.",
+      "Include a light vinaigrette dressing (e.g., olive oil & lemon) to boost healthy fats and enhance nutrient absorption."
+    ],
+    "target_comparison": {
+      "daily_protein_target_g": 130.0,
+      "meal_protein_coverage_pct": 39.5
+    }
+  },
+  {
+    "timestamp": "2026-09-15T06:37:37",
+    "meal_name": "Chicken Breast and Jasmine Rice with Broccoli",
+    "items": [
+      {
+        "name": "Grilled Chicken Breast",
+        "portion_g": 200,
+        "calories": 330,
+        "protein_g": 62.0,
+        "carbs_g": 0.0,
+        "fat_g": 7.0
+      },
+      {
+        "name": "White Jasmine Rice",
+        "portion_g": 180,
+        "calories": 234,
+        "protein_g": 4.5,
+        "carbs_g": 50.4,
+        "fat_g": 0.5
+      },
+      {
+        "name": "Steamed Broccoli",
+        "portion_g": 100,
+        "calories": 35,
+        "protein_g": 2.4,
+        "carbs_g": 7.0,
+        "fat_g": 0.4
+      }
+    ],
+    "total_calories": 599,
+    "total_protein_g": 68.9,
+    "total_carbs_g": 57.4,
+    "total_fat_g": 7.9,
+    "coach_feedback": "Excellent high-protein recovery meal!",
+    "suggestions": [
+      "Drink 500ml water"
+    ],
+    "target_comparison": {
+      "daily_protein_target_g": 140.0,
+      "meal_protein_coverage_pct": 49.2
+    }
+  },
+  {
+    "timestamp": "2026-09-15T06:40:01",
+    "meal_name": "Grilled Chicken with Fresh Vegetable Salad",
+    "items": [
+      {
+        "name": "Grilled Chicken Breast",
+        "portion_g": 180,
+        "calories": 250,
+        "protein_g": 45.0,
+        "carbs_g": 0.0,
+        "fat_g": 7.0
+      },
+      {
+        "name": "Mixed Greens (Arugula, Spinach, Red Leaf)",
+        "portion_g": 60,
+        "calories": 30,
+        "protein_g": 3.0,
+        "carbs_g": 5.0,
+        "fat_g": 0.5
+      },
+      {
+        "name": "Cucumber Slices",
+        "portion_g": 50,
+        "calories": 15,
+        "protein_g": 1.0,
+        "carbs_g": 3.5,
+        "fat_g": 0.1
+      },
+      {
+        "name": "Cherry Tomatoes (halved)",
+        "portion_g": 60,
+        "calories": 25,
+        "protein_g": 1.5,
+        "carbs_g": 5.5,
+        "fat_g": 0.2
+      },
+      {
+        "name": "Red Onion Slices",
+        "portion_g": 20,
+        "calories": 10,
+        "protein_g": 0.5,
+        "carbs_g": 2.5,
+        "fat_g": 0.1
+      }
+    ],
+    "total_calories": 330,
+    "total_protein_g": 51.0,
+    "total_carbs_g": 16.5,
+    "total_fat_g": 7.8,
+    "coach_feedback": "This meal is a solid choice for strength training, providing high-quality protein from grilled chicken to support muscle repair and growth. The fresh vegetables add fiber, vitamins, and hydration without excess calories. However, the total calories are modest and may not fully meet your daily target of 1711 kcal. Consider pairing this with a complex carbohydrate source like brown rice or quinoa to increase energy intake and support recovery.",
+    "suggestions": [
+      "Add 100g of cooked brown rice or quinoa to increase carbohydrates and overall caloric intake.",
+      "Include a healthy fat source such as avocado (50g) or olive oil dressing (1 tbsp) to enhance nutrient absorption and satiety."
+    ],
+    "target_comparison": {
+      "daily_protein_target_g": 130.0,
+      "meal_protein_coverage_pct": 39.2
+    }
+  },
+  {
+    "timestamp": "2026-09-15T06:41:00",
+    "meal_name": "Grilled Steak with Asparagus and Sweet Potato Fries",
+    "items": [
+      {
+        "name": "Grilled Steak (sliced)",
+        "portion_g": 180,
+        "calories": 450,
+        "protein_g": 42.0,
+        "carbs_g": 0.0,
+        "fat_g": 30.0
+      },
+      {
+        "name": "Steamed Asparagus",
+        "portion_g": 150,
+        "calories": 45,
+        "protein_g": 5.0,
+        "carbs_g": 7.0,
+        "fat_g": 0.5
+      },
+      {
+        "name": "Baked Sweet Potato Fries",
+        "portion_g": 120,
+        "calories": 180,
+        "protein_g": 2.0,
+        "carbs_g": 36.0,
+        "fat_g": 2.0
+      }
+    ],
+    "total_calories": 675,
+    "total_protein_g": 49.0,
+    "total_carbs_g": 43.0,
+    "total_fat_g": 32.5,
+    "coach_feedback": "This meal provides a solid source of high-quality protein from the steak, which supports muscle repair and strength gains. The asparagus adds fiber and micronutrients, while sweet potato fries offer complex carbohydrates for energy. However, the meal is moderately high in fat and falls short of your daily protein target. It's a good post-workout or evening meal but should be paired with additional protein sources throughout the day to meet your 130g goal.",
+    "suggestions": [
+      "Add a side of cottage cheese or Greek yogurt to boost protein intake.",
+      "Include a serving of quinoa or brown rice to increase carbohydrate content for sustained energy.",
+      "Consider adding a small portion of avocado or olive oil-based dressing to enhance healthy fats without excessive calories."
+    ],
+    "target_comparison": {
+      "daily_protein_target_g": 130.0,
+      "meal_protein_coverage_pct": 37.7
+    }
+  }
+]
